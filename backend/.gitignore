@@ -1,0 +1,12 @@
+# Env and secrets
+config.env
+.env
+.env.*
+
+# Dependencies - do not commit
+node_modules/
+
+# Build and logs
+dist/
+*.log
+coverage/

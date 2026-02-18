@@ -1,0 +1,51 @@
+# Dependencies - never commit these (large, reproducible from package.json)
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+.next/
+out/
+*.local
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+config.env
+*.env.local
+
+# Logs and debug
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Cache and temp
+.cache/
+.temp/
+tmp/
+*.tmp
+
+# Coverage and test artifacts
+coverage/
+.nyc_output/
+
+# Vite / tool caches
+.vite/
+.parcel-cache/
