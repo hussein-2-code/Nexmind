@@ -28,9 +28,17 @@ const projectSchema = new mongoose.Schema(
         freeLancer: {
             type: mongoose.Schema.ObjectId,
             ref: 'User',
-            required: [true, 'A review must belong to a User'],
+            required: [true, 'A project must have a freelancer'],
         },
-                createdAt: {
+        status: {
+            type: String,
+            enum: {
+                values: ['pending', 'completed', 'cancelled'],
+                message: 'Status must be pending, completed, or cancelled',
+            },
+            default: 'pending',
+        },
+        createdAt: {
             type: Date,
             default: Date.now(),
         },

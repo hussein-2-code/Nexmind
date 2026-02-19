@@ -97,7 +97,7 @@ exports.getProject = catchAsync(async (req, res, next) => {
     });
 });
 
-// Update a project
+// Update a project (general update; for status use updateProjectStatus)
 exports.updateProject = catchAsync(async (req, res, next) => {
     const project = await Project.findByIdAndUpdate(
         req.params.id,
@@ -117,6 +117,43 @@ exports.updateProject = catchAsync(async (req, res, next) => {
         status: 'success',
         data: {
             project
+        }
+    });
+});
+
+// Update project status (freelancer only; allowed values: pending, completed, cancelled)
+const ALLOWED_STATUSES = ['pending', 'completed', 'cancelled'];
+
+exports.updateProjectStatus = catchAsync(async (req, res, next) => {
+    const { status } = req.body;
+    const projectId = req.params.id;
+    const userId = req.user.id;
+
+    if (!status || !ALLOWED_STATUSES.includes(status.toLowerCase())) {
+        return next(new AppError('Invalid status. Use: pending, completed, or cancelled', 400));
+    }
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+        return next(new AppError('No project found with that ID', 404));
+    }
+
+    const freelancerId = (project.freeLancer && (project.freeLancer._id || project.freeLancer)).toString();
+    if (freelancerId !== userId.toString()) {
+        return next(new AppError('Only the assigned freelancer can update this project status', 403));
+    }
+
+    project.status = status.toLowerCase();
+    await project.save({ validateBeforeSave: true });
+
+    const updated = await Project.findById(projectId)
+        .populate('client', 'name email')
+        .populate('freeLancer', 'name email');
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            project: updated
         }
     });
 });

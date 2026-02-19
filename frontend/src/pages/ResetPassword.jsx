@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 const ResetPassword = () => {
   const { token } = useParams();
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
 
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -43,42 +45,41 @@ const ResetPassword = () => {
   const passwordsMatch = password && passwordConfirm && password === passwordConfirm;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-[#ff3333]/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-[#00a8ff]/20 rounded-full blur-3xl animate-pulse delay-700" />
+    <div className={`min-h-screen flex items-center justify-center p-4 transition-colors ${darkMode ? 'bg-[#0a0a0a]' : 'bg-slate-100'}`}>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className={`absolute -top-40 -right-32 w-80 h-80 rounded-full blur-3xl animate-pulse ${darkMode ? 'bg-[#ff3333]/20' : 'bg-red-400/10'}`} />
+        <div className={`absolute -bottom-40 -left-32 w-80 h-80 rounded-full blur-3xl animate-pulse delay-700 ${darkMode ? 'bg-[#00a8ff]/20' : 'bg-blue-400/10'}`} />
       </div>
 
       <div className="relative w-full max-w-md">
-        <div className="absolute -inset-1 bg-gradient-to-r from-[#ff3333] via-[#9945ff] to-[#00a8ff] rounded-2xl blur-xl opacity-20 animate-gradient" />
+        {darkMode && (
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#ff3333] via-[#9945ff] to-[#00a8ff] rounded-2xl blur-xl opacity-20 animate-gradient" />
+        )}
 
-        <div className="relative bg-[#121212] rounded-2xl p-8 border border-[#2a2a2a] shadow-2xl">
+        <div className={`relative rounded-2xl p-8 border shadow-2xl ${darkMode ? 'bg-[#121212] border-[#2a2a2a]' : 'bg-white border-slate-200'}`}>
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-white mb-2">Reset Password</h1>
-            <p className="text-[#b0b0b0] text-sm">
+            <h1 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Reset Password</h1>
+            <p className={`text-sm ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
               Enter your new password below.
             </p>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-[#ff3333]/10 border border-[#ff3333]/30 rounded-lg text-sm text-[#ff8080]">
+            <div className="mb-4 p-3 bg-red-50 dark:bg-[#ff3333]/10 border border-red-200 dark:border-[#ff3333]/30 rounded-lg text-sm text-red-600 dark:text-[#ff8080]">
               {error.message || 'Something went wrong. Please try again.'}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-[#b0b0b0] mb-2">
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                 New Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full px-3 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg 
-                         text-white placeholder-[#808080] 
-                         focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]
-                         transition-all duration-200"
+                className={`block w-full px-3 py-3 rounded-lg focus:outline-none focus:ring-1 transition-all duration-200 ${darkMode ? 'bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#808080] focus:border-[#00ffff] focus:ring-[#00ffff]' : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-cyan-500/30'}`}
                 placeholder="••••••••"
                 required
                 disabled={isLoading}
@@ -86,23 +87,20 @@ const ResetPassword = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#b0b0b0] mb-2">
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                 Confirm New Password
               </label>
               <input
                 type="password"
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
-                className="block w-full px-3 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg 
-                         text-white placeholder-[#808080] 
-                         focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]
-                         transition-all duration-200"
+                className={`block w-full px-3 py-3 rounded-lg focus:outline-none focus:ring-1 transition-all duration-200 ${darkMode ? 'bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#808080] focus:border-[#00ffff] focus:ring-[#00ffff]' : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-cyan-500/30'}`}
                 placeholder="••••••••"
                 required
                 disabled={isLoading}
               />
               {passwordConfirm && !passwordsMatch && (
-                <p className="mt-1 text-xs text-[#ff8080]">
+                <p className="mt-1 text-xs text-red-600 dark:text-[#ff8080]">
                   Passwords do not match
                 </p>
               )}
@@ -122,11 +120,11 @@ const ResetPassword = () => {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-[#808080]">
+          <p className={`mt-6 text-center text-sm ${darkMode ? 'text-[#808080]' : 'text-slate-500'}`}>
             Remembered your password?{' '}
             <Link
               to="/login"
-              className="text-[#00ffff] hover:text-[#00a8ff] font-medium transition-colors"
+              className="text-cyan-600 dark:text-[#00ffff] hover:text-cyan-700 dark:hover:text-[#00a8ff] font-medium transition-colors"
             >
               Back to login
             </Link>

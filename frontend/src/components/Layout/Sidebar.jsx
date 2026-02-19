@@ -15,6 +15,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import LogoutConfirm from '../LogoutConfirm';
+import { getAvatarUrl } from '../../utils/avatar';
 
 const Sidebar = ({
   isOpen,
@@ -116,7 +117,8 @@ const Sidebar = ({
               <img
                 src={userData.avatar}
                 alt={userData.name}
-                className="relative w-12 h-12 rounded-full border-2 border-[#00ffff]"
+                className="relative w-12 h-12 rounded-full object-cover border-2 border-[#00ffff] dark:border-[#00ffff]"
+                onError={(e) => { e.target.src = getAvatarUrl({ name: userData.name }, 48); }}
               />
               <span
                 className={`absolute bottom-0 right-0 w-3 h-3 bg-[#00ff88] border-2 rounded-full ${
@@ -219,6 +221,7 @@ const Sidebar = ({
         isOpen={showLogoutConfirm}
         onClose={() => setShowLogoutConfirm(false)}
         onConfirm={handleLogoutConfirm}
+        darkMode={darkMode}
       />
 
       <AnimatePresence>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Briefcase,
@@ -36,25 +36,28 @@ import {
 import Layout from '../components/Layout/Layout';
 import { useAuth } from '../context/AuthContext';
 import MessageButton from '../components/MessageButton';
+import toast from 'react-hot-toast';
+import { getAvatarUrl } from '../utils/avatar';
 
 const API_URL = 'http://localhost:8000/api/projects/freelancer';
+const PROJECTS_BASE_URL = 'http://localhost:8000/api/projects';
 const USER_API_URL = 'http://localhost:8000/api/users';
+
+const PROJECT_STATUS_OPTIONS = [
+  { value: 'pending', label: 'Pending', color: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/40 hover:bg-yellow-500/30', active: 'bg-yellow-500/30 border-yellow-500 text-yellow-400' },
+  { value: 'completed', label: 'Done', color: 'bg-[#00ff88]/20 text-[#00ff88] border-[#00ff88]/40 hover:bg-[#00ff88]/30', active: 'bg-[#00ff88]/30 border-[#00ff88] text-[#00ff88]' },
+  { value: 'cancelled', label: 'Cancelled', color: 'bg-[#ff3333]/20 text-[#ff3333] border-[#ff3333]/40 hover:bg-[#ff3333]/30', active: 'bg-[#ff3333]/30 border-[#ff3333] text-[#ff4444]' },
+];
 
 // ------------------ PROJECT STATUS BADGE ------------------
 const ProjectStatusBadge = ({ status }) => {
   const getStatusConfig = () => {
     switch(status?.toLowerCase()) {
       case 'completed':
-      case 'approved':
         return { color: 'bg-[#00ff88]/20 text-[#00ff88] border-[#00ff88]/30', icon: CheckCircle };
-      case 'in progress':
-      case 'ongoing':
-        return { color: 'bg-[#00ffff]/20 text-[#00ffff] border-[#00ffff]/30', icon: Clock };
       case 'pending':
-      case 'review':
         return { color: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30', icon: AlertCircle };
       case 'cancelled':
-      case 'rejected':
         return { color: 'bg-[#ff3333]/20 text-[#ff3333] border-[#ff3333]/30', icon: XCircle };
       default:
         return { color: 'bg-[#808080]/20 text-[#b0b0b0] border-[#2a2a2a]', icon: AlertCircle };
@@ -67,13 +70,13 @@ const ProjectStatusBadge = ({ status }) => {
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${config.color}`}>
       <Icon size={12} />
-      {status || 'Unknown'}
+      {(status && status.charAt(0).toUpperCase() + status.slice(1)) || 'Pending'}
     </span>
   );
 };
 
 // ------------------ PROJECT CARD ------------------
-const ProjectCard = ({ project, onClick }) => {
+const ProjectCard = ({ project, onClick, onStatusChange, token }) => {
   const getPlatformIcon = (platform) => {
     switch(platform?.toLowerCase()) {
       case 'web': return <Globe size={16} />;
@@ -125,11 +128,7 @@ const ProjectCard = ({ project, onClick }) => {
 
         {/* Client Info */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#00ffff] to-[#9945ff] flex items-center justify-center">
-            <span className="text-[10px] font-bold text-white">
-              {project.client?.name?.charAt(0) || 'C'}
-            </span>
-          </div>
+          <img src={getAvatarUrl(project.client, 24)} alt={project.client?.name} className="w-6 h-6 rounded-full object-cover" onError={(e) => { e.target.src = getAvatarUrl({ name: project.client?.name }, 24); }} />
           <div className="flex-1">
             <p className="text-xs text-[#808080]">Client</p>
             <p className="text-sm font-medium text-white">{project.client?.name}</p>
@@ -141,16 +140,37 @@ const ProjectCard = ({ project, onClick }) => {
           {project.description}
         </p>
 
-        {/* Tech Stack and Status */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Code size={14} className="text-[#808080]" />
-            <span className="text-xs px-2 py-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-full text-[#00ffff]">
-              {project.technology}
-            </span>
-          </div>
-          
-          <ProjectStatusBadge status={project.status || 'Pending'} />
+        {/* Tech Stack */}
+        <div className="flex items-center gap-2 mb-3">
+          <Code size={14} className="text-[#808080]" />
+          <span className="text-xs px-2 py-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-full text-[#00ffff]">
+            {project.technology}
+          </span>
+        </div>
+
+        {/* Status: pill selector for freelancer */}
+        <div className="flex flex-col gap-2 mb-3" onClick={(e) => e.stopPropagation()}>
+          <span className="text-xs text-[#808080]">Status</span>
+          {onStatusChange && token ? (
+            <div className="flex flex-wrap gap-1.5 p-1 bg-[#1a1a1a] rounded-lg border border-[#2a2a2a]">
+              {PROJECT_STATUS_OPTIONS.map((opt) => {
+                const current = (project.status || 'pending').toLowerCase();
+                const isActive = current === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => onStatusChange(project._id, opt.value)}
+                    className={`min-w-[72px] px-2.5 py-1.5 rounded-md text-xs font-medium border transition-all duration-200 ${isActive ? opt.active : `${opt.color} border-transparent`}`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <ProjectStatusBadge status={project.status || 'Pending'} />
+          )}
         </div>
 
         {project._id && project.client?._id && (
@@ -180,7 +200,7 @@ const ProjectCard = ({ project, onClick }) => {
 };
 
 // ------------------ PROJECT DETAILS MODAL ------------------
-const ProjectDetailsModal = ({ isOpen, onClose, project }) => {
+const ProjectDetailsModal = ({ isOpen, onClose, project, onStatusChange, token }) => {
   if (!isOpen || !project) return null;
 
   const getPlatformIcon = (platform) => {
@@ -269,8 +289,27 @@ const ProjectDetailsModal = ({ isOpen, onClose, project }) => {
               <p className="text-white font-medium">{project.technology}</p>
             </div>
             <div>
-              <p className="text-[#808080] text-xs">Status</p>
-              <ProjectStatusBadge status={project.status || 'Pending'} />
+              <p className="text-[#808080] text-xs mb-1.5">Status</p>
+              {onStatusChange && token && project?._id ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {PROJECT_STATUS_OPTIONS.map((opt) => {
+                    const current = (project.status || 'pending').toLowerCase();
+                    const isActive = current === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => onStatusChange(project._id, opt.value)}
+                        className={`min-w-[72px] px-2.5 py-1.5 rounded-md text-xs font-medium border transition-all ${isActive ? opt.active : `${opt.color} border-transparent`}`}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <ProjectStatusBadge status={project.status || 'Pending'} />
+              )}
             </div>
             <div>
               <p className="text-[#808080] text-xs">Description</p>
@@ -335,13 +374,8 @@ const ProfileSection = ({ user, stats }) => {
         {/* Avatar */}
         <div className="absolute -top-12 left-6">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff] to-[#9945ff] rounded-full blur-lg opacity-70" />
-            <div className="relative w-24 h-24 rounded-full bg-gradient-to-r from-[#00ffff] to-[#9945ff] flex items-center justify-center border-4 border-[#121212]">
-              <span className="text-white font-bold text-3xl">
-                {user?.name?.charAt(0) || 'F'}
-              </span>
-            </div>
-            <button className="absolute bottom-0 right-0 p-1.5 bg-[#1a1a1a] rounded-full border-2 border-[#121212] hover:bg-[#2a2a2a] transition-colors">
+            <img src={getAvatarUrl(user, 96)} alt={user?.name} className="relative w-24 h-24 rounded-full object-cover border-4 border-[#121212] ring-2 ring-cyan-500/30" onError={(e) => { e.target.src = getAvatarUrl({ name: user?.name }, 96); }} />
+            <button className="absolute bottom-0 right-0 p-1.5 bg-[#1a1a1a] rounded-full border-2 border-[#121212] hover:bg-[#2a2a2a] transition-colors" title="Edit profile photo in Profile">
               <Edit3 size={14} className="text-[#b0b0b0]" />
             </button>
           </div>
@@ -373,7 +407,7 @@ const ProfileSection = ({ user, stats }) => {
           </div>
           <div className="bg-[#1a1a1a] rounded-lg p-3 text-center">
             <p className="text-2xl font-bold text-yellow-500">{stats.pendingProjects}</p>
-            <p className="text-xs text-[#808080]">In Progress</p>
+            <p className="text-xs text-[#808080]">Pending</p>
           </div>
           <div className="bg-[#1a1a1a] rounded-lg p-3 text-center">
             <p className="text-2xl font-bold text-[#9945ff]">{stats.uniqueClients}</p>
@@ -495,17 +529,47 @@ const FreelancerDashboard = () => {
                          project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          project.technology?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesFilter = filterStatus === 'all' || 
+    const matchesFilter = filterStatus === 'all' ||
                          (project.status?.toLowerCase() || 'pending') === filterStatus.toLowerCase();
     
     return matchesSearch && matchesFilter;
   });
 
+  // Update project status (freelancer only)
+  const queryClient = useQueryClient();
+  const statusMutation = useMutation({
+    mutationFn: async ({ projectId, status }) => {
+      const response = await fetch(`${PROJECTS_BASE_URL}/${projectId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || 'Failed to update status');
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['freelancer-projects', user?._id] });
+      toast.success('Project status updated');
+    },
+    onError: (err) => {
+      toast.error(err.message || 'Failed to update status');
+    },
+  });
+
+  const handleStatusChange = (projectId, status) => {
+    statusMutation.mutate({ projectId, status });
+  };
+
   // Calculate stats
   const stats = {
     totalProjects: projects.length,
     completedProjects: projects.filter(p => p.status?.toLowerCase() === 'completed').length,
-    pendingProjects: projects.filter(p => !p.status || p.status.toLowerCase() === 'pending' || p.status.toLowerCase() === 'in progress').length,
+    pendingProjects: projects.filter(p => !p.status || p.status.toLowerCase() === 'pending').length,
+    cancelledProjects: projects.filter(p => p.status?.toLowerCase() === 'cancelled').length,
     uniqueClients: [...new Set(projects.map(p => p.client?._id))].length
   };
 
@@ -608,8 +672,8 @@ const FreelancerDashboard = () => {
                 >
                   <option value="all">All Projects</option>
                   <option value="pending">Pending</option>
-                  <option value="in progress">In Progress</option>
                   <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
                 </select>
               </div>
             </div>
@@ -623,6 +687,8 @@ const FreelancerDashboard = () => {
                   key={project._id}
                   project={project}
                   onClick={() => handleProjectClick(project)}
+                  onStatusChange={handleStatusChange}
+                  token={token}
                 />
               ))}
             </div>
@@ -646,6 +712,8 @@ const FreelancerDashboard = () => {
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
           project={selectedProject}
+          onStatusChange={handleStatusChange}
+          token={token}
         />
       </div>
     </Layout>

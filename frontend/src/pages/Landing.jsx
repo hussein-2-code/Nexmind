@@ -2,92 +2,80 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../../templatemo-prism-flux.css';
 
-const portfolioData = [
+const featureData = [
   {
     id: 1,
-    title: 'Neural Network',
+    title: 'Projects',
     description:
-      'Advanced AI system with deep learning capabilities for predictive analytics and pattern recognition.',
-    image: 'images/neural-network.jpg',
-    tech: ['TensorFlow', 'Python', 'CUDA'],
+      'Create projects, set scope and tech stack, and connect with the right freelancer. Manage everything in one place from brief to delivery.',
+    image: 'images/data-nexus.jpg',
+    tech: ['Scope', 'Milestones', 'Delivery'],
   },
   {
     id: 2,
-    title: 'Quantum Cloud',
+    title: 'Real-time Chat',
     description:
-      'Next-generation cloud infrastructure leveraging quantum computing for unprecedented processing power.',
-    image: 'images/quantum-cloud.jpg',
-    tech: ['AWS', 'Kubernetes', 'Docker'],
+      'Message freelancers and clients instantly. Built-in conversations keep all project communication in one thread—no more scattered emails.',
+    image: 'images/neural-network.jpg',
+    tech: ['Instant', 'Threaded', 'Secure'],
   },
   {
     id: 3,
-    title: 'Blockchain Vault',
+    title: 'AI-Powered Tools',
     description:
-      'Secure decentralized storage solution using advanced encryption and distributed ledger technology.',
-    image: 'images/blockchain-vault.jpg',
-    tech: ['Ethereum', 'Solidity', 'Web3'],
+      'Generate dashboard mockups and UI ideas from a short description. Use AI to speed up scoping and visualization before development.',
+    image: 'images/quantum-cloud.jpg',
+    tech: ['Groq AI', 'Mockups', 'Fast'],
   },
   {
     id: 4,
-    title: 'Cyber Defense',
+    title: 'Role-based Dashboards',
     description:
-      'Military-grade cybersecurity framework with real-time threat detection and automated response.',
+      'Clients see their projects and messages. Freelancers see assigned work and chats. Admins manage users and platform activity.',
     image: 'images/cyber-defense.jpg',
-    tech: ['Zero Trust', 'AI Defense', 'Encryption'],
+    tech: ['Client', 'Freelancer', 'Admin'],
   },
   {
     id: 5,
-    title: 'Data Nexus',
+    title: 'Profiles & Skills',
     description:
-      'Big data processing platform capable of analyzing petabytes of information in real-time.',
-    image: 'images/data-nexus.jpg',
-    tech: ['Apache Spark', 'Hadoop', 'Kafka'],
+      'Freelancers showcase skills, bio, and experience. Clients find the right match. Everyone stays in sync with clear roles and expectations.',
+    image: 'images/blockchain-vault.jpg',
+    tech: ['Profile', 'Skills', 'Match'],
   },
   {
     id: 6,
-    title: 'AR Interface',
+    title: 'Secure & Simple',
     description:
-      'Augmented reality system for immersive data visualization and interactive experiences.',
+      'JWT authentication, role-based access, and a clean API. Build and scale your workflow without worrying about auth or permissions.',
     image: 'images/ar-interface.jpg',
-    tech: ['Unity', 'ARCore', 'Computer Vision'],
-  },
-  {
-    id: 7,
-    title: 'IoT Matrix',
-    description:
-      'Intelligent IoT ecosystem connecting millions of devices with edge computing capabilities.',
-    image: 'images/iot-matrix.jpg',
-    tech: ['MQTT', 'Edge AI', '5G'],
+    tech: ['JWT', 'Roles', 'API'],
   },
 ];
 
-const skillsData = [
-  { name: 'React.js', icon: '⚛️', level: 95, category: 'frontend' },
-  { name: 'Node.js', icon: '🟢', level: 90, category: 'backend' },
-  { name: 'TypeScript', icon: '📘', level: 88, category: 'frontend' },
-  { name: 'AWS', icon: '☁️', level: 92, category: 'cloud' },
-  { name: 'Docker', icon: '🐳', level: 85, category: 'cloud' },
-  { name: 'Python', icon: '🐍', level: 93, category: 'backend' },
-  { name: 'Kubernetes', icon: '☸️', level: 82, category: 'cloud' },
-  { name: 'GraphQL', icon: '◈', level: 87, category: 'backend' },
-  { name: 'TensorFlow', icon: '🤖', level: 78, category: 'emerging' },
-  { name: 'Blockchain', icon: '🔗', level: 75, category: 'emerging' },
-  { name: 'Vue.js', icon: '💚', level: 85, category: 'frontend' },
-  { name: 'MongoDB', icon: '🍃', level: 90, category: 'backend' },
+const featuresList = [
+  { name: 'Create projects', icon: '📋', level: 100, category: 'platform' },
+  { name: 'Real-time chat', icon: '💬', level: 100, category: 'platform' },
+  { name: 'AI mockups', icon: '🤖', level: 100, category: 'platform' },
+  { name: 'Client dashboard', icon: '👤', level: 100, category: 'platform' },
+  { name: 'Freelancer dashboard', icon: '👨‍💻', level: 100, category: 'platform' },
+  { name: 'Admin panel', icon: '⚙️', level: 100, category: 'platform' },
+  { name: 'Profiles & skills', icon: '📌', level: 100, category: 'platform' },
+  { name: 'Secure auth (JWT)', icon: '🔐', level: 100, category: 'platform' },
 ];
 
 const statsConfig = [
-  { icon: '🚀', label: 'Projects Completed', target: 150, description: 'Successfully delivered enterprise-level solutions across multiple industries with 100% on-time completion rate.' },
-  { icon: '⚡', label: 'Client Satisfaction %', target: 99, description: 'Maintaining excellence through continuous feedback loops and agile development methodologies.' },
-  { icon: '🏆', label: 'Industry Awards', target: 25, description: 'Recognized globally for innovation in digital transformation and technological advancement.' },
-  { icon: '💎', label: 'Code Commits Daily', target: 500, description: 'Continuous integration and deployment with automated testing ensuring maximum code quality.' },
+  { icon: '📋', label: 'Projects', target: 500, description: 'Projects created and managed on Nexmind by clients and freelancers.' },
+  { icon: '👥', label: 'Freelancers', target: 120, description: 'Skilled freelancers ready to take on your next project.' },
+  { icon: '💬', label: 'Messages', target: 100, description: 'Real-time conversations keeping teams aligned on every project.' },
+  { icon: '🤖', label: 'AI-Powered', target: 1, description: 'Built-in AI tools to generate mockups and speed up your workflow.' },
 ];
 
 const sections = [
   { id: 'home', label: 'Home' },
   { id: 'about', label: 'About' },
   { id: 'stats', label: 'Metrics' },
-  { id: 'skills', label: 'Arsenal' },
+  { id: 'skills', label: 'Features' },
   { id: 'contact', label: 'Contact' },
 ];
 
@@ -232,7 +220,7 @@ const Landing = () => {
   // Carousel auto-rotate
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % portfolioData.length);
+      setCurrentIndex((prev) => (prev + 1) % featureData.length);
     }, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -250,7 +238,7 @@ const Landing = () => {
   const isTablet = windowWidth <= 1024;
 
   const getCarouselItemStyle = (index) => {
-    const totalItems = portfolioData.length;
+    const totalItems = featureData.length;
     let offset = index - currentIndex;
     if (offset > totalItems / 2) offset -= totalItems;
     else if (offset < -totalItems / 2) offset += totalItems;
@@ -324,8 +312,8 @@ const Landing = () => {
 
   const filteredSkills =
     activeCategory === 'all'
-      ? skillsData
-      : skillsData.filter((skill) => skill.category === activeCategory);
+      ? featuresList
+      : featuresList.filter((skill) => skill.category === activeCategory);
 
   const handleContactSubmit = (e) => {
     e.preventDefault();
@@ -348,10 +336,10 @@ const Landing = () => {
               <div className="orbit-ring orbit-ring-1" />
               <div className="orbit-ring orbit-ring-2" />
               <div className="orbit-ring orbit-ring-3" />
-              <div className="orbit-core">PF</div>
+              <div className="orbit-core">N</div>
             </div>
             <div className="loader-label">
-              Initializing PRISM FLUX
+              Nexmind
             </div>
           </div>
         </div>
@@ -371,8 +359,8 @@ const Landing = () => {
               </div>
             </div>
             <span className="logo-text">
-              <span className="prism">PRISM</span>
-              <span className="flux">FLUX</span>
+              <span className="prism">NEX</span>
+              <span className="flux">MIND</span>
             </span>
           </button>
 
@@ -390,7 +378,7 @@ const Landing = () => {
             ))}
             <li>
               <Link to="/signup" className="nav-link">
-                Sign Up
+                Sign up
               </Link>
             </li>
             <li>
@@ -415,9 +403,12 @@ const Landing = () => {
 
       {/* Hero Section with 3D Carousel */}
       <section className="hero" id="home">
+        <p className="hero-tagline">
+          Connect clients and freelancers. Create projects, chat in real time, and ship with AI-powered tools.
+        </p>
         <div className="carousel-container">
           <div className="carousel" id="carousel">
-            {portfolioData.map((item, index) => (
+            {featureData.map((item, index) => (
               <div
                 key={item.id}
                 className="carousel-item"
@@ -458,7 +449,7 @@ const Landing = () => {
               className="carousel-btn"
               onClick={() =>
                 setCurrentIndex(
-                  (prev) => (prev - 1 + portfolioData.length) % portfolioData.length,
+                  (prev) => (prev - 1 + featureData.length) % featureData.length,
                 )
               }
             >
@@ -468,7 +459,7 @@ const Landing = () => {
               type="button"
               className="carousel-btn"
               onClick={() =>
-                setCurrentIndex((prev) => (prev + 1) % portfolioData.length)
+                setCurrentIndex((prev) => (prev + 1) % featureData.length)
               }
             >
               ›
@@ -476,7 +467,7 @@ const Landing = () => {
           </div>
 
           <div className="carousel-indicators" id="indicators">
-            {portfolioData.map((item, index) => (
+            {featureData.map((item, index) => (
               <button
                 key={item.id}
                 type="button"
@@ -494,73 +485,43 @@ const Landing = () => {
           <div className="prism-line" />
 
           <h2 className="philosophy-headline">
-            Refracting Ideas
+            Connect. Build.
             <br />
-            Into Reality
+            Ship.
           </h2>
 
           <p className="philosophy-subheading">
-            At PRISM FLUX, we transform complex challenges into elegant solutions through the
-            convergence of cutting-edge technology and visionary design. Every project is a spectrum
-            of possibilities waiting to be discovered.
+            Nexmind connects clients with skilled freelancers and brings ideas to life. Create
+            projects, chat in real time, and use AI-powered tools to go from brief to delivered
+            product—faster.
           </p>
 
           <div className="philosophy-pillars">
             <div className="pillar">
               <div className="pillar-icon">💎</div>
-              <h3 className="pillar-title">Innovation</h3>
+              <h3 className="pillar-title">Projects that ship</h3>
               <p className="pillar-description">
-                Breaking boundaries with revolutionary approaches that redefine industry standards
-                and push the limits of what&apos;s possible. Elevate your designs with premium
-                vector stickers from{' '}
-                <a
-                  href="https://www.vectorsticker.com"
-                  rel="nofollow"
-                  target="_blank"
-                >
-                  VectorSticker
-                </a>
-                .
+                Post your brief, match with the right freelancer, and manage the whole project in
+                one place. Clear roles, milestones, and real-time messaging keep everyone aligned.
               </p>
             </div>
 
             <div className="pillar">
               <div className="pillar-icon">🔬</div>
-              <h3 className="pillar-title">Precision</h3>
+              <h3 className="pillar-title">AI-powered workflow</h3>
               <p className="pillar-description">
-                Meticulous attention to detail ensures every pixel, every line of code, and every
-                interaction is perfectly crafted by{' '}
-                <a
-                  href="https://templatemo.com"
-                  rel="nofollow"
-                  target="_blank"
-                  style={{ color: 'var(--accent-cyan)', textDecoration: 'none' }}
-                >
-                  TemplateMo
-                </a>
-                , enhanced with stunning visuals from{' '}
-                <a
-                  href="https://unsplash.com"
-                  rel="nofollow"
-                  target="_blank"
-                  style={{ color: 'var(--accent-cyan)', textDecoration: 'none' }}
-                >
-                  Unsplash
-                </a>
-                .
+                Use AI to generate dashboard mockups, refine scope, and speed up delivery. We blend
+                human expertise with smart tools so you spend less time on admin and more on building.
               </p>
             </div>
 
             <div className="pillar">
               <div className="pillar-icon">∞</div>
-              <h3 className="pillar-title">Evolution</h3>
+              <h3 className="pillar-title">Built for growth</h3>
               <p className="pillar-description">
-                Continuous adaptation and growth, staying ahead of trends while building timeless
-                solutions for tomorrow. Boost your productivity with the easy-to-use timer tools at{' '}
-                <a href="https://timermo.com" rel="nofollow" target="_blank">
-                  TimerMo
-                </a>
-                .
+                Whether you&apos;re a client with one project or a freelancer managing many,
+                Nexmind scales with you. Transparent communication and simple workflows from first
+                brief to long-term collaboration.
               </p>
             </div>
           </div>
@@ -585,9 +546,9 @@ const Landing = () => {
       {/* Stats Section */}
       <section className="stats-section" id="stats">
         <div className="section-header">
-          <h2 className="section-title">Performance Metrics</h2>
+          <h2 className="section-title">Nexmind at a glance</h2>
           <p className="section-subtitle">
-            Real-time analytics and achievements powered by cutting-edge technology
+            The platform that connects clients and freelancers with projects and real-time chat
           </p>
         </div>
 
@@ -609,34 +570,20 @@ const Landing = () => {
       <section className="skills-section" id="skills">
         <div className="skills-container">
           <div className="section-header">
-            <h2 className="section-title">Technical Arsenal</h2>
+            <h2 className="section-title">What Nexmind offers</h2>
             <p className="section-subtitle">
-              Mastery of cutting-edge technologies and frameworks
+              Everything you need to run projects between clients and freelancers
             </p>
           </div>
 
           <div className="skill-categories">
-            {['all', 'frontend', 'backend', 'cloud', 'emerging'].map((category) => (
-              <button
-                key={category}
-                type="button"
-                className={`category-tab${
-                  activeCategory === category ? ' active' : ''
-                }`}
-                data-category={category}
-                onClick={() => setActiveCategory(category)}
-              >
-                {category === 'all'
-                  ? 'All Skills'
-                  : category === 'frontend'
-                  ? 'Frontend'
-                  : category === 'backend'
-                  ? 'Backend'
-                  : category === 'cloud'
-                  ? 'Cloud & DevOps'
-                  : 'Emerging Tech'}
-              </button>
-            ))}
+            <button
+              type="button"
+              className="category-tab active"
+              onClick={() => setActiveCategory('all')}
+            >
+              Platform features
+            </button>
           </div>
 
           <div className="skills-hexagon-grid" id="skillsGrid">
@@ -689,11 +636,11 @@ const Landing = () => {
               </div>
             </a>
 
-            <a href="mailto:hello@prismflux.io" className="info-item">
+            <a href="mailto:hello@nexmind.io" className="info-item">
               <div className="info-icon">📧</div>
               <div className="info-text">
                 <h4>Email</h4>
-                <p>hello@prismflux.io</p>
+                <p>hello@nexmind.io</p>
               </div>
             </a>
 
@@ -758,13 +705,13 @@ const Landing = () => {
                 </div>
               </div>
               <span className="logo-text">
-                <span className="prism">PRISM</span>
-                <span className="flux">FLUX</span>
+                <span className="prism">NEX</span>
+                <span className="flux">MIND</span>
               </span>
             </div>
             <p className="footer-description">
-              Refracting complex challenges into brilliant solutions through the convergence of
-              art, science, and technology.
+              Connect with freelancers, manage projects, and ship with AI-powered tools. Nexmind
+              turns ideas into delivered work.
             </p>
             <div className="footer-social">
               <a href="https://www.facebook.com" target="_blank" rel="noreferrer" className="social-icon">
@@ -814,13 +761,7 @@ const Landing = () => {
         </div>
 
         <div className="footer-bottom">
-          <div className="copyright">© 2026 PRISM FLUX. All rights reserved.</div>
-          <div className="footer-credits">
-            Designed by{' '}
-            <a href="https://templatemo.com" rel="nofollow" target="_blank">
-              TemplateMo
-            </a>
-          </div>
+          <div className="copyright">© 2026 Nexmind. All rights reserved.</div>
         </div>
       </footer>
     </div>

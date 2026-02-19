@@ -1,27 +1,48 @@
-# Nodejs / Express / MongoDB / Mongoose Bootcamp. from: Jonas.io
+# Nexmind API
 
-I will be regularly updating this repo following up the Jonas Schmedtmann course.
+Backend for **Nexmind** — a platform connecting clients with freelancers, with real-time messaging and AI-powered features.
 
-A v1.0 realse is up. Completing all the sections of the course that involved developing the REST API. I will keep updating this API with features I deem necessary or that I think will be fun to implement.
+## Stack
 
-Current topics covered in the course:
+- **Node.js** + **Express**
+- **MongoDB** + **Mongoose**
+- **JWT** authentication & role-based access (user / freelancer / admin)
+- **Socket.io** for real-time chat
+- **AI**: **DeepSeek** or **Groq** for dashboard UI generation (configurable via env)
+- Security: Helmet, rate limiting, CORS, sanitization
 
--   Nodejs Fundamentals
--   Async JS.
--   REST API Design.
--   CRUD Operations on REST API
--   Authentication
--   Authorization
--   Error Handling
--   Nested Routing
--   Query Middleware
--   Agreggation Middleware
--   Metrics with the aggregation pipeline
--   Document embedding
--   Geospacial queries.
--   Virtual fields in the schema.
--   JWT
--   Sending emails with Nodemailer
--   Usage of Node Middleware like: morgan, helmet, rateLimit
+## Main features
 
-\- Juan Urdaneta.
+- User auth (signup, login, password reset)
+- Projects (client ↔ freelancer)
+- Conversations & messages (real-time)
+- AI endpoints (e.g. generate dashboard UI from description)
+- Admin: user management, dashboard
+
+## Run locally
+
+```bash
+npm install
+cp config.env.example config.env   # then fill in your env vars
+npm run start:dev
+```
+
+Defaults: `PORT=8000`, MongoDB from `DATABASE` or `MONGO_URI` in `config.env`.
+
+### AI provider (Generate UI)
+
+The **Generate UI Concept** feature uses an LLM. You can use either:
+
+| Provider   | Env variable       | Notes |
+|-----------|--------------------|--------|
+| **DeepSeek** | `DEEPSEEK_API_KEY` | [Get key](https://platform.deepseek.com). Pay-as-you-go (very cheap); new accounts may get free credits. If set, this is used first. |
+| **Groq**    | `GROQ_API_KEY`     | Used when `DEEPSEEK_API_KEY` is not set. |
+
+Set **one** (or both). If both are set, DeepSeek is used.
+
+## Scripts
+
+- `npm run start:dev` — development (nodemon)
+- `npm run start:prod` — production
+- `npm run seed:demo` — seed demo users
+- `npm test` — run tests

@@ -1,5 +1,6 @@
 //THIS IS THE EXPRESS RELATED FILE
 //ALL THINGS EXPRESS HERE
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -59,6 +60,8 @@ app.use(
 );
 //serving static files
 app.use(express.static(`${__dirname}/public`));
+// uploaded avatars (profile photos)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 //test middleware
 app.use((req, res, next) => {
     // console.log(req.headers);

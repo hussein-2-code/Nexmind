@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Search, Menu, Activity, Bell, MessageCircle, LayoutDashboard } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getAvatarUrl } from '../../utils/avatar';
 
 const TopNavBar = ({
   darkMode,
@@ -154,15 +155,16 @@ const TopNavBar = ({
           {darkMode ? '🌙' : '☀️'}
         </button>
 
-        <div className={`flex items-center gap-3 ml-3 pl-3 border-l ${darkMode ? 'border-[#2a2a2a]' : 'border-gray-200'}`}>
+        <div className={`flex items-center gap-3 ml-3 pl-3 border-l ${darkMode ? 'border-[#2a2a2a]' : 'border-slate-200'}`}>
           <div className="text-right hidden md:block">
-            <p className={darkMode ? 'text-sm font-semibold text-white' : 'text-sm font-semibold text-gray-900'}>{userData.name}</p>
-            <p className="text-xs text-[#00ffff]">{userData.role}</p>
+            <p className={darkMode ? 'text-sm font-semibold text-white' : 'text-sm font-semibold text-slate-900'}>{userData.name}</p>
+            <p className={`text-xs ${darkMode ? 'text-[#00ffff]' : 'text-cyan-600'}`}>{userData.role}</p>
           </div>
           <img
             src={userData.avatar}
             alt={userData.name}
-            className="w-10 h-10 rounded-full border-2 border-[#00ffff]"
+            className="w-10 h-10 rounded-full object-cover border-2 border-cyan-500 dark:border-[#00ffff]"
+            onError={(e) => { e.target.src = getAvatarUrl({ name: userData.name }, 40); }}
           />
         </div>
       </div>

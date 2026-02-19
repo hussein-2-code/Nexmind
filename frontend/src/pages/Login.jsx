@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext'; // ✅ This will now work
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  
+  const { darkMode } = useTheme();
   const { login, isLoading, error } = useAuth();
   const navigate = useNavigate();
   const getHomeRouteByRole = (role) => {
@@ -28,36 +29,31 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-[#ff3333]/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-[#00a8ff]/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#9945ff]/10 rounded-full blur-3xl animate-pulse delay-700" />
+    <div className={`min-h-screen flex items-center justify-center p-4 transition-colors ${darkMode ? 'bg-[#0a0a0a]' : 'bg-slate-100'}`}>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className={`absolute -top-40 -right-32 w-80 h-80 rounded-full blur-3xl animate-pulse ${darkMode ? 'bg-[#ff3333]/20' : 'bg-red-400/10'}`} />
+        <div className={`absolute -bottom-40 -left-32 w-80 h-80 rounded-full blur-3xl animate-pulse delay-1000 ${darkMode ? 'bg-[#00a8ff]/20' : 'bg-blue-400/10'}`} />
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-3xl animate-pulse delay-700 ${darkMode ? 'bg-[#9945ff]/10' : 'bg-violet-400/10'}`} />
       </div>
 
-      {/* Login Card */}
       <div className="relative w-full max-w-md">
-        {/* Glowing effect */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-[#ff3333] via-[#9945ff] to-[#00a8ff] rounded-2xl blur-xl opacity-20 animate-gradient" />
-        
-        <div className="relative bg-[#121212] rounded-2xl p-8 border border-[#2a2a2a] shadow-2xl">
-          
-          {/* Logo/Header */}
+        {darkMode && (
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#ff3333] via-[#9945ff] to-[#00a8ff] rounded-2xl blur-xl opacity-20 animate-gradient" />
+        )}
+        <div className={`relative rounded-2xl p-8 shadow-2xl ${darkMode ? 'bg-[#121212] border border-[#2a2a2a]' : 'bg-white border border-slate-200'}`}>
           <div className="text-center mb-8">
-            <div className="inline-flex p-3 bg-[#1a1a1a] rounded-2xl border border-[#2a2a2a] mb-4">
-              <svg className="w-8 h-8 text-[#00ffff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className={`inline-flex p-3 rounded-2xl mb-4 ${darkMode ? 'bg-[#1a1a1a] border border-[#2a2a2a]' : 'bg-slate-100 border border-slate-200'}`}>
+              <svg className={`w-8 h-8 ${darkMode ? 'text-[#00ffff]' : 'text-cyan-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-            <p className="text-[#b0b0b0]">Sign in to continue to your dashboard</p>
+            <h1 className={`text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Welcome Back</h1>
+            <p className={darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}>Sign in to continue to your dashboard</p>
           </div>
 
-          {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-[#ff3333]/10 border border-[#ff3333]/30 rounded-lg">
-              <p className="text-[#ff3333] text-sm flex items-center gap-2">
+            <div className="mb-6 p-4 bg-red-50 dark:bg-[#ff3333]/10 border border-red-200 dark:border-[#ff3333]/30 rounded-lg">
+              <p className="text-red-600 dark:text-[#ff3333] text-sm flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -66,16 +62,14 @@ export default function Login() {
             </div>
           )}
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
             <div>
-              <label className="block text-sm font-medium text-[#b0b0b0] mb-2">
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                 Email Address
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-[#808080] group-focus-within:text-[#00ffff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`h-5 w-5 transition-colors ${darkMode ? 'text-[#808080] group-focus-within:text-[#00ffff]' : 'text-slate-400 group-focus-within:text-cyan-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                   </svg>
                 </div>
@@ -83,10 +77,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg 
-                           text-white placeholder-[#808080] 
-                           focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]
-                           transition-all duration-200"
+                  className={`block w-full pl-10 pr-3 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 ${darkMode ? 'bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#808080]' : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400'}`}
                   placeholder="admin@gmail.com"
                   required
                   disabled={isLoading}
@@ -94,14 +85,13 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Password Field */}
             <div>
-              <label className="block text-sm font-medium text-[#b0b0b0] mb-2">
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                 Password
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-[#808080] group-focus-within:text-[#00ffff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`h-5 w-5 transition-colors ${darkMode ? 'text-[#808080] group-focus-within:text-[#00ffff]' : 'text-slate-400 group-focus-within:text-cyan-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
@@ -109,10 +99,7 @@ export default function Login() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-12 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg 
-                           text-white placeholder-[#808080] 
-                           focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]
-                           transition-all duration-200"
+                  className={`block w-full pl-10 pr-12 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 ${darkMode ? 'bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#808080]' : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400'}`}
                   placeholder="••••••••"
                   required
                   disabled={isLoading}
@@ -133,20 +120,18 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Remember & Forgot */}
             <div className="flex items-center justify-between">
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 bg-[#1a1a1a] border-[#2a2a2a] rounded 
-                           text-[#00ffff] focus:ring-[#00ffff]/20 focus:ring-offset-0"
+                  className={`w-4 h-4 rounded text-cyan-500 focus:ring-cyan-500/30 focus:ring-offset-0 ${darkMode ? 'bg-[#1a1a1a] border-[#2a2a2a]' : 'bg-slate-100 border-slate-300'}`}
                 />
-                <span className="ml-2 text-sm text-[#b0b0b0]">Remember me</span>
+                <span className={`ml-2 text-sm ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>Remember me</span>
               </label>
               <button
                 type="button"
                 onClick={() => navigate('/forgot-password')}
-                className="text-sm text-[#00a8ff] hover:text-[#00ffff] transition-colors"
+                className="text-sm text-cyan-600 dark:text-[#00a8ff] hover:text-cyan-700 dark:hover:text-[#00ffff] transition-colors"
               >
                 Forgot password?
               </button>
@@ -186,10 +171,9 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Sign Up Link */}
-          <p className="mt-6 text-center text-sm text-[#808080]">
+          <p className={`mt-6 text-center text-sm ${darkMode ? 'text-[#808080]' : 'text-slate-500'}`}>
             Don't have an account?{' '}
-            <button onClick={()=> navigate('/signup')} className="text-[#00ffff] hover:text-[#00a8ff] font-medium transition-colors">
+            <button onClick={() => navigate('/signup')} className="text-cyan-600 dark:text-[#00ffff] hover:text-cyan-700 dark:hover:text-[#00a8ff] font-medium transition-colors">
               Sign up now
             </button>
           </p>

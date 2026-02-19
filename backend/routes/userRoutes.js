@@ -2,8 +2,16 @@ const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const groqController = require('../controllers/groqController');
+const deepseekController = require('../controllers/deepseekController');
+const uploadPhoto = require('../utils/uploadPhoto');
 
 const router = express.Router();
+
+// Use DeepSeek if DEEPSEEK_API_KEY is set, otherwise Groq (same route, same response shape)
+const generateDashboardUI = (req, res, next) =>
+  process.env.DEEPSEEK_API_KEY
+    ? deepseekController.generateDashboardUI(req, res, next)
+    : groqController.generateDashboardUI(req, res, next);
 
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
@@ -32,8 +40,11 @@ router.post('/addSkill', userController.addSkill);
 router.delete('/removeSkill/:skill', userController.removeSkill);
 
 
-// Groq dashboard UI generation
-router.post('/generate-dashboard-ui', groqController.generateDashboardUI);
+// Upload profile photo from device (single file, field name "photo")
+router.post('/upload-photo', uploadPhoto, userController.uploadPhoto);
+
+// AI dashboard UI generation (DeepSeek if DEEPSEEK_API_KEY set, else Groq)
+router.post('/generate-dashboard-ui', generateDashboardUI);
 
 // Admin only routes
 router.use(authController.restrictTo('admin'));

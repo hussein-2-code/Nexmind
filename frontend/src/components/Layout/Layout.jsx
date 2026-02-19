@@ -2,33 +2,16 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
 import TopNavBar from './TopNavBar';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { getAvatarUrl } from '../../utils/avatar';
 
-const Layout = ({ children, darkMode: initialDarkMode = true }) => {
+const Layout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [darkMode, setDarkMode] = useState(() => {
-    try {
-      const storedTheme = localStorage.getItem('app-theme');
-      if (storedTheme === 'dark') return true;
-      if (storedTheme === 'light') return false;
-    } catch (_) {
-      // Ignore localStorage failures and fall back to default.
-    }
-    return initialDarkMode;
-  });
+  const { darkMode, setDarkMode } = useTheme();
   const { user } = useAuth();
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleDarkMode = () => setDarkMode(!darkMode);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('app-theme', darkMode ? 'dark' : 'light');
-    } catch (_) {
-      // Ignore localStorage failures.
-    }
-
-    document.documentElement.classList.toggle('dark', darkMode);
-  }, [darkMode]);
 
   useEffect(() => {
     const applyResponsiveSidebar = () => {
@@ -50,15 +33,13 @@ const Layout = ({ children, darkMode: initialDarkMode = true }) => {
   const userData = {
     name: user?.name || 'Guest User',
     role: roleLabelMap[user?.role] || 'Account',
-    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      user?.name || 'Guest'
-    )}&background=9945ff&color=fff&size=60`,
+    avatar: getAvatarUrl(user, 128),
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-[#0a0a0a]' : 'bg-gray-50'} flex transition-colors duration-300`}>
+    <div className={`min-h-screen flex transition-colors duration-300 ${darkMode ? 'bg-[#0a0a0a]' : 'bg-slate-50'}`}>
       {/* Sidebar */}
-      <Sidebar 
+      <Sidebar
         isOpen={sidebarOpen}
         toggleSidebar={toggleSidebar}
         darkMode={darkMode}
@@ -81,7 +62,7 @@ const Layout = ({ children, darkMode: initialDarkMode = true }) => {
         />
 
         {/* Page Content */}
-        <div className="p-6">
+        <div className={`p-4 sm:p-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
           {children}
         </div>
       </main>

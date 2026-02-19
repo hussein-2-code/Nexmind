@@ -6,8 +6,17 @@ body {
   padding: 0;
   width: 100%;
   min-height: 100%;
+  transition: background-color 0.25s ease, color 0.2s ease;
 }
 
+/* Light mode (default when .dark is not on html) */
 body {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+/* Dark mode when .dark is on html */
+html.dark body {
   background: #0a0a0a;
+  color: #ffffff;
 }

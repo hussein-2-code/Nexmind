@@ -74,9 +74,19 @@ exports.createUser = (req, res) => {
     });
 };
 
-// Get all freelancers
+// Get all freelancers (optional filter by language/skill)
 exports.getFreelancers = catchAsync(async (req, res, next) => {
-    const freelancers = await User.find({ role: 'freelancer' })
+    const filter = { role: 'freelancer' };
+
+    // Filter by language (matches any skill that contains the language, case-insensitive)
+    if (req.query.language && typeof req.query.language === 'string') {
+        const language = req.query.language.trim();
+        if (language) {
+            filter.skills = { $in: [new RegExp(`^${ escapeRegex(language) }$`, 'i')] };
+        }
+    }
+
+    const freelancers = await User.find(filter)
         .select('-password -__v -passwordResetToken -passwordResetExpires')
         .sort('-createdAt');
 
@@ -87,7 +97,7 @@ exports.getFreelancers = catchAsync(async (req, res, next) => {
             data: {
                 freelancers: []
             },
-            message: 'No freelancers found'
+            message: req.query.language ? 'No freelancers found for this language' : 'No freelancers found'
         });
     }
 
@@ -99,6 +109,10 @@ exports.getFreelancers = catchAsync(async (req, res, next) => {
         }
     });
 });
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 // Get a specific freelancer by ID
 exports.getFreelancerById = catchAsync(async (req, res, next) => {
@@ -345,7 +359,7 @@ exports.getMyProfile = catchAsync(async (req, res, next) => {
     });
 });
 
-// Update user photo only
+// Update user photo only (URL from body)
 exports.updateMyPhoto = catchAsync(async (req, res, next) => {
     if (!req.body.photo) {
         return next(new AppError('Please provide a photo URL', 400));
@@ -365,6 +379,29 @@ exports.updateMyPhoto = catchAsync(async (req, res, next) => {
         data: {
             user: updatedUser
         }
+    });
+});
+
+// Upload profile photo from file (multer puts file in req.file)
+exports.uploadPhoto = catchAsync(async (req, res, next) => {
+    if (!req.file || !req.file.filename) {
+        return next(new AppError('Please upload an image file (JPEG, PNG, GIF, or WebP, max 5MB)', 400));
+    }
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const photoUrl = `${baseUrl}/uploads/avatars/${req.file.filename}`;
+
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user.id,
+        { photo: photoUrl },
+        { new: true, runValidators: true }
+    ).select('-password -__v');
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user: updatedUser,
+            photo: photoUrl,
+        },
     });
 });
 

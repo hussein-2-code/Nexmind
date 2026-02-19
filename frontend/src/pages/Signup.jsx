@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useMutation } from '@tanstack/react-query';
 
 export default function Signup() {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
   const { login: loginAfterSignup } = useAuth();
   const getHomeRouteByRole = (role) => {
     if (role === 'admin') return '/admin/dashboard';
@@ -86,36 +88,33 @@ export default function Signup() {
                     agreeTerms;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-[#ff3333]/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-[#00a8ff]/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#9945ff]/10 rounded-full blur-3xl animate-pulse delay-700" />
+    <div className={`min-h-screen flex items-center justify-center p-4 transition-colors ${darkMode ? 'bg-[#0a0a0a]' : 'bg-slate-100'}`}>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className={`absolute -top-40 -right-32 w-80 h-80 rounded-full blur-3xl animate-pulse ${darkMode ? 'bg-[#ff3333]/20' : 'bg-red-400/10'}`} />
+        <div className={`absolute -bottom-40 -left-32 w-80 h-80 rounded-full blur-3xl animate-pulse delay-1000 ${darkMode ? 'bg-[#00a8ff]/20' : 'bg-blue-400/10'}`} />
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-3xl animate-pulse delay-700 ${darkMode ? 'bg-[#9945ff]/10' : 'bg-violet-400/10'}`} />
       </div>
 
-      {/* Signup Card */}
       <div className="relative w-full max-w-lg">
-        {/* Glowing effect */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-[#ff3333] via-[#9945ff] to-[#00a8ff] rounded-2xl blur-xl opacity-20 animate-gradient" />
+        {darkMode && (
+          <div className="absolute -inset-1 bg-gradient-to-r from-[#ff3333] via-[#9945ff] to-[#00a8ff] rounded-2xl blur-xl opacity-20 animate-gradient" />
+        )}
         
-        <div className="relative bg-[#121212] rounded-2xl p-8 border border-[#2a2a2a] shadow-2xl">
+        <div className={`relative rounded-2xl p-8 border shadow-2xl ${darkMode ? 'bg-[#121212] border-[#2a2a2a]' : 'bg-white border-slate-200'}`}>
           
-          {/* Logo/Header */}
           <div className="text-center mb-6">
-            <div className="inline-flex p-3 bg-[#1a1a1a] rounded-2xl border border-[#2a2a2a] mb-4">
-              <svg className="w-8 h-8 text-[#00ffff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className={`inline-flex p-3 rounded-2xl mb-4 ${darkMode ? 'bg-[#1a1a1a] border border-[#2a2a2a]' : 'bg-slate-100 border border-slate-200'}`}>
+              <svg className={`w-8 h-8 ${darkMode ? 'text-[#00ffff]' : 'text-cyan-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
-            <p className="text-[#b0b0b0]">Join us today! Choose your account type</p>
+            <h1 className={`text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Create Account</h1>
+            <p className={darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}>Join us today! Choose your account type</p>
           </div>
 
-          {/* Error Message */}
           {signupMutation.error && (
-            <div className="mb-6 p-4 bg-[#ff3333]/10 border border-[#ff3333]/30 rounded-lg">
-              <p className="text-[#ff3333] text-sm flex items-center gap-2">
+            <div className="mb-6 p-4 bg-red-50 dark:bg-[#ff3333]/10 border border-red-200 dark:border-[#ff3333]/30 rounded-lg">
+              <p className="text-red-600 dark:text-[#ff3333] text-sm flex items-center gap-2">
                 <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -124,74 +123,71 @@ export default function Signup() {
             </div>
           )}
 
-          {/* Role Selection Cards */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-[#b0b0b0] mb-3">
+            <label className={`block text-sm font-medium mb-3 ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
               I want to join as
             </label>
             <div className="grid grid-cols-2 gap-4">
-              {/* User Role */}
               <button
                 type="button"
                 onClick={() => handleRoleSelect('user')}
                 className={`relative p-4 rounded-xl border-2 transition-all duration-200 ${
                   formData.role === 'user'
-                    ? 'border-[#00ffff] bg-[#00ffff]/10'
-                    : 'border-[#2a2a2a] bg-[#1a1a1a] hover:border-[#4a4a4a]'
+                    ? darkMode ? 'border-[#00ffff] bg-[#00ffff]/10' : 'border-cyan-500 bg-cyan-50'
+                    : darkMode ? 'border-[#2a2a2a] bg-[#1a1a1a] hover:border-[#4a4a4a]' : 'border-slate-200 bg-slate-50 hover:border-slate-300'
                 }`}
               >
                 <div className="flex flex-col items-center text-center">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                    formData.role === 'user' ? 'bg-[#00ffff]/20' : 'bg-[#2a2a2a]'
+                    formData.role === 'user' ? (darkMode ? 'bg-[#00ffff]/20' : 'bg-cyan-100') : (darkMode ? 'bg-[#2a2a2a]' : 'bg-slate-200')
                   }`}>
                     <svg className={`w-6 h-6 ${
-                      formData.role === 'user' ? 'text-[#00ffff]' : 'text-[#808080]'
+                      formData.role === 'user' ? (darkMode ? 'text-[#00ffff]' : 'text-cyan-600') : (darkMode ? 'text-[#808080]' : 'text-slate-500')
                     }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                   <h3 className={`font-semibold ${
-                    formData.role === 'user' ? 'text-[#00ffff]' : 'text-white'
+                    formData.role === 'user' ? (darkMode ? 'text-[#00ffff]' : 'text-cyan-700') : (darkMode ? 'text-white' : 'text-slate-900')
                   }`}>User</h3>
-                  <p className="text-xs text-[#808080] mt-1">Browse & purchase</p>
+                  <p className={`text-xs mt-1 ${darkMode ? 'text-[#808080]' : 'text-slate-500'}`}>Browse & purchase</p>
                 </div>
                 {formData.role === 'user' && (
                   <div className="absolute top-2 right-2">
-                    <svg className="w-5 h-5 text-[#00ffff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-5 h-5 ${darkMode ? 'text-[#00ffff]' : 'text-cyan-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
                 )}
               </button>
 
-              {/* Freelancer Role */}
               <button
                 type="button"
                 onClick={() => handleRoleSelect('freelancer')}
                 className={`relative p-4 rounded-xl border-2 transition-all duration-200 ${
                   formData.role === 'freelancer'
-                    ? 'border-[#00ff88] bg-[#00ff88]/10'
-                    : 'border-[#2a2a2a] bg-[#1a1a1a] hover:border-[#4a4a4a]'
+                    ? darkMode ? 'border-[#00ff88] bg-[#00ff88]/10' : 'border-emerald-500 bg-emerald-50'
+                    : darkMode ? 'border-[#2a2a2a] bg-[#1a1a1a] hover:border-[#4a4a4a]' : 'border-slate-200 bg-slate-50 hover:border-slate-300'
                 }`}
               >
                 <div className="flex flex-col items-center text-center">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                    formData.role === 'freelancer' ? 'bg-[#00ff88]/20' : 'bg-[#2a2a2a]'
+                    formData.role === 'freelancer' ? (darkMode ? 'bg-[#00ff88]/20' : 'bg-emerald-100') : (darkMode ? 'bg-[#2a2a2a]' : 'bg-slate-200')
                   }`}>
                     <svg className={`w-6 h-6 ${
-                      formData.role === 'freelancer' ? 'text-[#00ff88]' : 'text-[#808080]'
+                      formData.role === 'freelancer' ? (darkMode ? 'text-[#00ff88]' : 'text-emerald-600') : (darkMode ? 'text-[#808080]' : 'text-slate-500')
                     }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <h3 className={`font-semibold ${
-                    formData.role === 'freelancer' ? 'text-[#00ff88]' : 'text-white'
+                    formData.role === 'freelancer' ? (darkMode ? 'text-[#00ff88]' : 'text-emerald-700') : (darkMode ? 'text-white' : 'text-slate-900')
                   }`}>Freelancer</h3>
-                  <p className="text-xs text-[#808080] mt-1">Offer services</p>
+                  <p className={`text-xs mt-1 ${darkMode ? 'text-[#808080]' : 'text-slate-500'}`}>Offer services</p>
                 </div>
                 {formData.role === 'freelancer' && (
                   <div className="absolute top-2 right-2">
-                    <svg className="w-5 h-5 text-[#00ff88]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-5 h-5 ${darkMode ? 'text-[#00ff88]' : 'text-emerald-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
@@ -202,14 +198,13 @@ export default function Signup() {
 
           {/* Signup Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium text-[#b0b0b0] mb-2">
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                 Full Name
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-[#808080] group-focus-within:text-[#00ffff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`h-5 w-5 transition-colors ${darkMode ? 'text-[#808080] group-focus-within:text-[#00ffff]' : 'text-slate-400 group-focus-within:text-cyan-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
@@ -218,10 +213,7 @@ export default function Signup() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg 
-                           text-white placeholder-[#808080] 
-                           focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]
-                           transition-all duration-200"
+                  className={`block w-full pl-10 pr-3 py-3 rounded-lg focus:outline-none focus:ring-1 transition-all duration-200 ${darkMode ? 'bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#808080] focus:border-[#00ffff] focus:ring-[#00ffff]' : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-cyan-500/30'}`}
                   placeholder="John Doe"
                   required
                   disabled={signupMutation.isPending}
@@ -229,14 +221,13 @@ export default function Signup() {
               </div>
             </div>
 
-            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-[#b0b0b0] mb-2">
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                 Email Address
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-[#808080] group-focus-within:text-[#00ffff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`h-5 w-5 transition-colors ${darkMode ? 'text-[#808080] group-focus-within:text-[#00ffff]' : 'text-slate-400 group-focus-within:text-cyan-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                   </svg>
                 </div>
@@ -245,10 +236,7 @@ export default function Signup() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg 
-                           text-white placeholder-[#808080] 
-                           focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]
-                           transition-all duration-200"
+                  className={`block w-full pl-10 pr-3 py-3 rounded-lg focus:outline-none focus:ring-1 transition-all duration-200 ${darkMode ? 'bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#808080] focus:border-[#00ffff] focus:ring-[#00ffff]' : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-cyan-500/30'}`}
                   placeholder="john@example.com"
                   required
                   disabled={signupMutation.isPending}
@@ -256,14 +244,13 @@ export default function Signup() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-[#b0b0b0] mb-2">
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                 Password
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-[#808080] group-focus-within:text-[#00ffff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`h-5 w-5 transition-colors ${darkMode ? 'text-[#808080] group-focus-within:text-[#00ffff]' : 'text-slate-400 group-focus-within:text-cyan-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
@@ -272,15 +259,11 @@ export default function Signup() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`block w-full pl-10 pr-12 py-3 bg-[#1a1a1a] border rounded-lg 
-                           text-white placeholder-[#808080] 
-                           focus:outline-none focus:ring-1 transition-all duration-200
-                           ${formData.password && !isPasswordValid 
-                             ? 'border-[#ff3333] focus:border-[#ff3333] focus:ring-[#ff3333]' 
-                             : formData.password && isPasswordValid
-                               ? 'border-[#00ff88] focus:border-[#00ff88] focus:ring-[#00ff88]'
-                               : 'border-[#2a2a2a] focus:border-[#00ffff] focus:ring-[#00ffff]'
-                           }`}
+                  className={`block w-full pl-10 pr-12 py-3 rounded-lg focus:outline-none focus:ring-1 transition-all duration-200 ${
+                    darkMode
+                      ? 'bg-[#1a1a1a] text-white placeholder-[#808080] ' + (formData.password && !isPasswordValid ? 'border border-[#ff3333] focus:border-[#ff3333] focus:ring-[#ff3333]' : formData.password && isPasswordValid ? 'border border-[#00ff88] focus:border-[#00ff88] focus:ring-[#00ff88]' : 'border border-[#2a2a2a] focus:border-[#00ffff] focus:ring-[#00ffff]')
+                      : 'bg-slate-50 text-slate-900 placeholder-slate-400 ' + (formData.password && !isPasswordValid ? 'border border-red-400 focus:border-red-500 focus:ring-red-500/30' : formData.password && isPasswordValid ? 'border border-emerald-400 focus:border-emerald-500 focus:ring-emerald-500/30' : 'border border-slate-200 focus:border-cyan-500 focus:ring-cyan-500/30')
+                  }`}
                   placeholder="••••••••"
                   required
                   disabled={signupMutation.isPending}
@@ -290,7 +273,7 @@ export default function Signup() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
-                  <svg className="h-5 w-5 text-[#808080] hover:text-[#00ffff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`h-5 w-5 transition-colors ${darkMode ? 'text-[#808080] hover:text-[#00ffff]' : 'text-slate-400 hover:text-cyan-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {showPassword ? (
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                     ) : (
@@ -300,20 +283,19 @@ export default function Signup() {
                 </button>
               </div>
               {formData.password && !isPasswordValid && (
-                <p className="mt-1 text-xs text-[#ff3333]">
+                <p className="mt-1 text-xs text-red-600 dark:text-[#ff3333]">
                   Password must be at least 6 characters
                 </p>
               )}
             </div>
 
-            {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-medium text-[#b0b0b0] mb-2">
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                 Confirm Password
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-[#808080] group-focus-within:text-[#00ffff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`h-5 w-5 transition-colors ${darkMode ? 'text-[#808080] group-focus-within:text-[#00ffff]' : 'text-slate-400 group-focus-within:text-cyan-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
@@ -322,15 +304,11 @@ export default function Signup() {
                   name="passwordConfirm"
                   value={formData.passwordConfirm}
                   onChange={handleChange}
-                  className={`block w-full pl-10 pr-12 py-3 bg-[#1a1a1a] border rounded-lg 
-                           text-white placeholder-[#808080] 
-                           focus:outline-none focus:ring-1 transition-all duration-200
-                           ${formData.passwordConfirm && !passwordsMatch 
-                             ? 'border-[#ff3333] focus:border-[#ff3333] focus:ring-[#ff3333]' 
-                             : formData.passwordConfirm && passwordsMatch
-                               ? 'border-[#00ff88] focus:border-[#00ff88] focus:ring-[#00ff88]'
-                               : 'border-[#2a2a2a] focus:border-[#00ffff] focus:ring-[#00ffff]'
-                           }`}
+                  className={`block w-full pl-10 pr-12 py-3 rounded-lg focus:outline-none focus:ring-1 transition-all duration-200 ${
+                    darkMode
+                      ? 'bg-[#1a1a1a] text-white placeholder-[#808080] ' + (formData.passwordConfirm && !passwordsMatch ? 'border border-[#ff3333] focus:border-[#ff3333] focus:ring-[#ff3333]' : formData.passwordConfirm && passwordsMatch ? 'border border-[#00ff88] focus:border-[#00ff88] focus:ring-[#00ff88]' : 'border border-[#2a2a2a] focus:border-[#00ffff] focus:ring-[#00ffff]')
+                      : 'bg-slate-50 border text-slate-900 placeholder-slate-400 ' + (formData.passwordConfirm && !passwordsMatch ? 'border-red-400 focus:border-red-500 focus:ring-red-500/30' : formData.passwordConfirm && passwordsMatch ? 'border-emerald-400 focus:border-emerald-500 focus:ring-emerald-500/30' : 'border-slate-200 focus:border-cyan-500 focus:ring-cyan-500/30')
+                  }`}
                   placeholder="••••••••"
                   required
                   disabled={signupMutation.isPending}
@@ -340,7 +318,7 @@ export default function Signup() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
-                  <svg className="h-5 w-5 text-[#808080] hover:text-[#00ffff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`h-5 w-5 transition-colors ${darkMode ? 'text-[#808080] hover:text-[#00ffff]' : 'text-slate-400 hover:text-cyan-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {showConfirmPassword ? (
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                     ) : (
@@ -350,13 +328,12 @@ export default function Signup() {
                 </button>
               </div>
               {formData.passwordConfirm && !passwordsMatch && (
-                <p className="mt-1 text-xs text-[#ff3333]">
+                <p className="mt-1 text-xs text-red-600 dark:text-[#ff3333]">
                   Passwords do not match
                 </p>
               )}
             </div>
 
-            {/* Terms & Conditions */}
             <div className="flex items-start">
               <div className="flex items-center h-5">
                 <input
@@ -364,18 +341,17 @@ export default function Signup() {
                   type="checkbox"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="w-4 h-4 bg-[#1a1a1a] border-[#2a2a2a] rounded 
-                           text-[#00ffff] focus:ring-[#00ffff]/20 focus:ring-offset-0"
+                  className={`w-4 h-4 rounded text-cyan-500 focus:ring-cyan-500/30 focus:ring-offset-0 ${darkMode ? 'bg-[#1a1a1a] border-[#2a2a2a]' : 'bg-slate-100 border-slate-300'}`}
                   required
                 />
               </div>
-              <label htmlFor="terms" className="ml-2 text-sm text-[#b0b0b0]">
+              <label htmlFor="terms" className={`ml-2 text-sm ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                 I agree to the{' '}
-                <a href="#" className="text-[#00ffff] hover:text-[#00a8ff] transition-colors">
+                <a href="#" className="text-cyan-600 dark:text-[#00ffff] hover:text-cyan-700 dark:hover:text-[#00a8ff] transition-colors">
                   Terms of Service
                 </a>{' '}
                 and{' '}
-                <a href="#" className="text-[#00ffff] hover:text-[#00a8ff] transition-colors">
+                <a href="#" className="text-cyan-600 dark:text-[#00ffff] hover:text-cyan-700 dark:hover:text-[#00a8ff] transition-colors">
                   Privacy Policy
                 </a>
               </label>
@@ -415,12 +391,11 @@ export default function Signup() {
             </button>
           </form>
 
-          {/* Login Link */}
-          <p className="mt-6 text-center text-sm text-[#808080]">
+          <p className={`mt-6 text-center text-sm ${darkMode ? 'text-[#808080]' : 'text-slate-500'}`}>
             Already have an account?{' '}
             <Link 
               to="/login" 
-              className="text-[#00ffff] hover:text-[#00a8ff] font-medium transition-colors"
+              className="text-cyan-600 dark:text-[#00ffff] hover:text-cyan-700 dark:hover:text-[#00a8ff] font-medium transition-colors"
             >
               Sign in
             </Link>

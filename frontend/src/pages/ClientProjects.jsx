@@ -19,6 +19,7 @@ import {
 import Layout from '../components/Layout/Layout';
 import { useAuth } from '../context/AuthContext';
 import MessageButton from '../components/MessageButton';
+import { getAvatarUrl } from '../utils/avatar';
 
 const API_URL = 'http://localhost:8000/api/projects/client';
 
@@ -215,20 +216,27 @@ const ProjectCard = ({ project, onClick }) => {
           {project.description}
         </p>
 
-        <div className="flex items-center gap-2 mb-4">
-          <Code size={14} className="text-[#808080]" />
-          <span className="text-xs px-2 py-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-full text-[#00ffff]">
-            {project.technology}
-          </span>
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <div className="flex items-center gap-2">
+            <Code size={14} className="text-[#808080]" />
+            <span className="text-xs px-2 py-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-full text-[#00ffff]">
+              {project.technology}
+            </span>
+          </div>
+          {project.status && (
+            <span className={`text-xs px-2 py-1 rounded-full border font-medium ${
+              project.status.toLowerCase() === 'completed' ? 'bg-[#00ff88]/20 text-[#00ff88] border-[#00ff88]/30' :
+              project.status.toLowerCase() === 'cancelled' ? 'bg-[#ff3333]/20 text-[#ff3333] border-[#ff3333]/30' :
+              'bg-yellow-500/20 text-yellow-500 border-yellow-500/30'
+            }`}>
+              {(project.status.charAt(0).toUpperCase() + project.status.slice(1))}
+            </span>
+          )}
         </div>
 
         <div className="space-y-2 pt-4 border-t border-[#2a2a2a]">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#00ffff] to-[#9945ff] flex items-center justify-center">
-              <span className="text-[10px] font-bold text-white">
-                {project.client?.name?.charAt(0) || 'C'}
-              </span>
-            </div>
+            <img src={getAvatarUrl(project.client, 24)} alt={project.client?.name} className="w-6 h-6 rounded-full object-cover" onError={(e) => { e.target.src = getAvatarUrl({ name: project.client?.name }, 24); }} />
             <div className="flex-1">
               <p className="text-xs text-[#808080]">Client</p>
               <p className="text-sm font-medium text-white">{project.client?.name}</p>
@@ -236,11 +244,7 @@ const ProjectCard = ({ project, onClick }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#00ff88] to-[#00ffff] flex items-center justify-center">
-              <span className="text-[10px] font-bold text-black">
-                {project.freeLancer?.name?.charAt(0) || 'F'}
-              </span>
-            </div>
+            <img src={getAvatarUrl(project.freeLancer, 24)} alt={project.freeLancer?.name} className="w-6 h-6 rounded-full object-cover" onError={(e) => { e.target.src = getAvatarUrl({ name: project.freeLancer?.name }, 24); }} />
             <div className="flex-1">
               <p className="text-xs text-[#808080]">Freelancer</p>
               <p className="text-sm font-medium text-white">{project.freeLancer?.name}</p>
