@@ -429,11 +429,30 @@ html {
 	color: var(--accent-cyan);
 }
 
+.nav-link:focus-visible,
+.nav-menu a:focus-visible {
+	outline: 2px solid var(--accent-purple);
+	outline-offset: 2px;
+}
+
 .menu-toggle {
 	display: none;
 	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 	cursor: pointer;
-	padding: 5px;
+	padding: 10px;
+	min-width: 44px;
+	min-height: 44px;
+	background: transparent;
+	border: none;
+	color: inherit;
+	transition: 0.3s;
+}
+
+.menu-toggle:focus-visible {
+	outline: 2px solid var(--accent-purple);
+	outline-offset: 2px;
 }
 
 .menu-toggle span {
@@ -465,6 +484,7 @@ html {
 	align-items: center;
 	justify-content: center;
 	position: relative;
+	z-index: 0;
 	padding: 100px var(--content-padding) 80px;
 	background: radial-gradient(ellipse at center,
 			rgba(153, 69, 255, 0.1) 0%,
@@ -577,6 +597,19 @@ html {
 	transition: all 0.5s ease;
 }
 
+.card-image-placeholder {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(135deg, var(--carbon-dark), var(--metal-dark));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 48px;
+	font-weight: 700;
+	color: var(--accent-purple);
+	opacity: 0.25;
+}
+
 .carousel-item:hover .card-image img {
 	filter: grayscale(0%) contrast(1.3);
 	transform: scale(1.1);
@@ -650,8 +683,10 @@ html {
 }
 
 .carousel-btn {
-	width: 60px;
-	height: 60px;
+	width: 56px;
+	height: 56px;
+	min-width: 44px;
+	min-height: 44px;
 	background: linear-gradient(135deg, var(--carbon-medium), var(--carbon-dark));
 	border: 2px solid var(--metal-dark);
 	border-radius: 50%;
@@ -665,6 +700,11 @@ html {
 	box-shadow:
 		0 5px 15px rgba(0, 0, 0, 0.5),
 		inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.carousel-btn:focus-visible {
+	outline: 2px solid var(--accent-purple);
+	outline-offset: 2px;
 }
 
 .carousel-btn:hover {
@@ -686,19 +726,40 @@ html {
 }
 
 .indicator {
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+}
+
+.indicator::before {
+	content: '';
 	width: 12px;
 	height: 12px;
 	background: var(--metal-dark);
 	border: 1px solid var(--metal-light);
 	border-radius: 50%;
-	cursor: pointer;
 	transition: all 0.3s ease;
 }
 
-.indicator.active {
+.indicator:focus-visible {
+	outline: 2px solid var(--accent-purple);
+	outline-offset: 2px;
+}
+
+.indicator.active::before {
 	background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
 	box-shadow: 0 0 10px rgba(153, 69, 255, 0.5);
 	transform: scale(1.3);
+	border-color: var(--accent-purple);
 }
 
 /* NEW: Prism Philosophy Section */
@@ -709,6 +770,7 @@ html {
 			rgba(153, 69, 255, 0.02) 50%,
 			var(--primary-black) 100%);
 	position: relative;
+	z-index: 1;
 	overflow: hidden;
 }
 
@@ -1482,10 +1544,15 @@ a.info-item {
 	position: relative;
 }
 
-.footer-content {
+.footer-inner {
 	max-width: var(--content-max-width);
 	width: 100%;
-	margin: 0 auto 40px;
+	margin: 0 auto;
+}
+
+.footer-content {
+	width: 100%;
+	margin-bottom: 40px;
 	display: grid;
 	grid-template-columns: 2fr 1fr 1fr 1fr;
 	gap: 48px;
@@ -1495,37 +1562,58 @@ a.info-item {
 .footer-brand {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	gap: 16px;
 }
 
 .footer-logo {
 	display: flex;
 	align-items: center;
-	margin-bottom: 15px;
+	margin-bottom: 0;
 }
 
 .footer-description {
 	color: var(--text-secondary);
 	line-height: 1.6;
 	font-size: 14px;
+	max-width: 320px;
+}
+
+.footer-contact-line {
+	margin-top: 4px;
+}
+
+.footer-email {
+	color: var(--accent-cyan);
+	text-decoration: none;
+	font-size: 14px;
+	transition: color 0.2s ease;
+}
+
+.footer-email:hover {
+	color: var(--accent-purple);
+	text-decoration: underline;
 }
 
 .footer-social {
 	display: flex;
-	gap: 15px;
+	flex-wrap: wrap;
+	gap: 10px;
 }
 
 .social-icon {
-	width: 40px;
-	height: 40px;
+	padding: 8px 14px;
 	background: var(--carbon-medium);
 	border: 1px solid var(--metal-dark);
-	border-radius: 50%;
-	display: flex;
+	border-radius: 20px;
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	color: var(--text-secondary);
 	text-decoration: none;
+	font-size: 12px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 	transition: all 0.3s ease;
 }
 
@@ -1533,34 +1621,65 @@ a.info-item {
 	background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
 	border-color: var(--accent-purple);
 	color: var(--text-primary);
-	transform: translateY(-3px);
-	box-shadow: 0 5px 15px rgba(153, 69, 255, 0.3);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(153, 69, 255, 0.3);
+}
+
+.footer-section {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
 }
 
 .footer-section h4 {
 	color: var(--text-primary);
-	margin-bottom: 20px;
+	margin: 0 0 16px 0;
+	padding: 0;
 	text-transform: uppercase;
 	letter-spacing: 1px;
-	font-size: 16px;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.3;
 }
 
 .footer-links {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 8px;
+	align-items: flex-start;
+	width: 100%;
 }
 
-.footer-links a {
+.footer-links a,
+.footer-link {
 	color: var(--text-secondary);
 	text-decoration: none;
-	transition: all 0.3s ease;
+	transition: all 0.2s ease;
 	font-size: 14px;
+	display: inline-block;
 }
 
-.footer-links a:hover {
+.footer-links a:hover,
+.footer-link:hover {
 	color: var(--accent-purple);
-	padding-left: 10px;
+}
+
+.footer-link-btn {
+	background: none;
+	border: none;
+	color: var(--text-secondary);
+	text-decoration: none;
+	font: inherit;
+	font-size: 14px;
+	cursor: pointer;
+	text-align: left;
+	padding: 0;
+	transition: all 0.2s ease;
+	display: inline-block;
+}
+
+.footer-link-btn:hover {
+	color: var(--accent-purple);
 }
 
 .footer-bottom {
@@ -1571,16 +1690,20 @@ a.info-item {
 	align-items: center;
 	flex-wrap: wrap;
 	gap: 16px;
-	max-width: var(--content-max-width);
 	width: 100%;
-	margin: 0 auto;
-	padding-left: 0;
-	padding-right: 0;
 }
 
 .copyright {
 	color: var(--text-dim);
 	font-size: 14px;
+}
+
+.footer-tagline {
+	color: var(--text-dim);
+	font-size: 13px;
+	font-weight: 500;
+	letter-spacing: 1px;
+	margin: 0;
 }
 
 .footer-credits {
@@ -1769,6 +1892,11 @@ a.info-item {
 		align-items: center;
 	}
 
+	.footer-brand .footer-description,
+	.footer-brand .footer-contact-line {
+		text-align: center;
+	}
+
 	.footer-section {
 		display: flex;
 		flex-direction: column;
@@ -1783,5 +1911,132 @@ a.info-item {
 		flex-direction: column;
 		gap: 20px;
 		text-align: center;
+	}
+}
+
+/* Extra small screens: tighter spacing and typography */
+@media (max-width: 480px) {
+	.hero {
+		padding: 80px 16px 60px;
+	}
+
+	.hero-tagline {
+		font-size: 15px;
+		line-height: 1.5;
+		margin-bottom: 24px;
+	}
+
+	.nav-container {
+		padding: 12px 16px;
+		min-height: 60px;
+	}
+
+	.logo-icon {
+		width: 36px;
+		height: 36px;
+		margin-right: 10px;
+	}
+
+	.logo-text {
+		font-size: 18px;
+	}
+
+	.carousel-item {
+		width: 280px;
+		height: 420px;
+	}
+
+	.carousel-controls {
+		bottom: -50px;
+		gap: 12px;
+	}
+
+	.carousel-btn {
+		width: 44px;
+		height: 44px;
+		font-size: 18px;
+	}
+
+	.philosophy-section,
+	.stats-section,
+	.skills-section,
+	.contact-section {
+		padding: 60px 16px;
+	}
+
+	.philosophy-headline {
+		font-size: 28px;
+	}
+
+	.philosophy-subheading {
+		font-size: 16px;
+		margin-bottom: 48px;
+	}
+
+	.pillar {
+		padding: 28px 20px;
+		min-height: auto;
+	}
+
+	.section-title {
+		font-size: 26px;
+	}
+
+	.section-subtitle {
+		font-size: 15px;
+	}
+
+	.stat-card {
+		padding: 24px 20px;
+		min-height: auto;
+	}
+
+	.stat-icon {
+		width: 60px;
+		height: 60px;
+		font-size: 28px;
+	}
+
+	.stat-number {
+		font-size: 36px;
+	}
+
+	.contact-container {
+		gap: 32px;
+	}
+
+	.contact-info,
+	.contact-form {
+		padding: 24px;
+	}
+
+	.footer {
+		padding: 40px 16px 24px;
+	}
+
+	.footer-content {
+		gap: 32px;
+	}
+}
+
+/* Prevent carousel from causing horizontal scroll on small viewports */
+.hero .carousel-container {
+	overflow: hidden;
+}
+
+/* Respect user motion preference */
+@media (prefers-reduced-motion: reduce) {
+	.landing-body::after,
+	.prism-line::before,
+	.particle,
+	.loader-orbit::before,
+	.orbit-ring-1,
+	.orbit-ring-2,
+	.orbit-ring-3 {
+		animation: none;
+	}
+
+	.carousel-item {
+		transition-duration: 0.2s;
 	}
 }

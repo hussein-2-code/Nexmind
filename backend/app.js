@@ -15,6 +15,7 @@ const userRouter = require('./routes/userRoutes');
 const projectRouter = require('./routes/projectRoutes');
 const conversationRoutes = require('./routes/conversations');
 const messageRoutes = require('./routes/messages');
+const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 
@@ -71,6 +72,7 @@ app.use('/api/users', userRouter);
 app.use('/api/projects', projectRouter);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.all('*', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl}`, 404));

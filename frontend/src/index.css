@@ -20,3 +20,39 @@ html.dark body {
   background: #0a0a0a;
   color: #ffffff;
 }
+
+/* Modern scrollbar – slim, rounded, smooth (Messages and other scroll areas) */
+.scrollbar-modern {
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 transparent;
+}
+
+html.dark .scrollbar-modern {
+  scrollbar-color: #404040 transparent;
+}
+
+.scrollbar-modern::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-modern::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-modern::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.scrollbar-modern::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+html.dark .scrollbar-modern::-webkit-scrollbar-thumb {
+  background: #404040;
+}
+
+html.dark .scrollbar-modern::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}

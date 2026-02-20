@@ -23,8 +23,6 @@ import {
   Edit3,
   Download,
   Share2,
-  Filter,
-  Search,
   Cpu,
   Smartphone,
   Monitor,
@@ -45,6 +43,7 @@ const USER_API_URL = 'http://localhost:8000/api/users';
 
 const PROJECT_STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending', color: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/40 hover:bg-yellow-500/30', active: 'bg-yellow-500/30 border-yellow-500 text-yellow-400' },
+  { value: 'in_progress', label: 'In progress', color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40 hover:bg-cyan-500/30', active: 'bg-cyan-500/30 border-cyan-500 text-cyan-400' },
   { value: 'completed', label: 'Done', color: 'bg-[#00ff88]/20 text-[#00ff88] border-[#00ff88]/40 hover:bg-[#00ff88]/30', active: 'bg-[#00ff88]/30 border-[#00ff88] text-[#00ff88]' },
   { value: 'cancelled', label: 'Cancelled', color: 'bg-[#ff3333]/20 text-[#ff3333] border-[#ff3333]/40 hover:bg-[#ff3333]/30', active: 'bg-[#ff3333]/30 border-[#ff3333] text-[#ff4444]' },
 ];
@@ -54,13 +53,15 @@ const ProjectStatusBadge = ({ status }) => {
   const getStatusConfig = () => {
     switch(status?.toLowerCase()) {
       case 'completed':
-        return { color: 'bg-[#00ff88]/20 text-[#00ff88] border-[#00ff88]/30', icon: CheckCircle };
+        return { color: 'bg-[#00ff88]/20 text-[#00ff88] border-[#00ff88]/30', icon: CheckCircle, label: 'Completed' };
+      case 'in_progress':
+        return { color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', icon: Clock, label: 'In progress' };
       case 'pending':
-        return { color: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30', icon: AlertCircle };
+        return { color: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30', icon: AlertCircle, label: 'Pending' };
       case 'cancelled':
-        return { color: 'bg-[#ff3333]/20 text-[#ff3333] border-[#ff3333]/30', icon: XCircle };
+        return { color: 'bg-[#ff3333]/20 text-[#ff3333] border-[#ff3333]/30', icon: XCircle, label: 'Cancelled' };
       default:
-        return { color: 'bg-[#808080]/20 text-[#b0b0b0] border-[#2a2a2a]', icon: AlertCircle };
+        return { color: 'bg-[#808080]/20 text-[#b0b0b0] border-[#2a2a2a]', icon: AlertCircle, label: status || 'Pending' };
     }
   };
 
@@ -70,7 +71,7 @@ const ProjectStatusBadge = ({ status }) => {
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${config.color}`}>
       <Icon size={12} />
-      {(status && status.charAt(0).toUpperCase() + status.slice(1)) || 'Pending'}
+      {config.label || 'Pending'}
     </span>
   );
 };
@@ -318,7 +319,7 @@ const ProjectDetailsModal = ({ isOpen, onClose, project, onStatusChange, token }
           </div>
 
           {/* Design Preview */}
-          <div className="relative bg-white w-full h-[calc(95vh-180px)] overflow-auto">
+          <div className="relative bg-white w-full h-[calc(95vh-180px)] overflow-auto scrollbar-modern">
             <iframe
               title="Project Design"
               className="w-full h-full border-0"
@@ -474,16 +475,14 @@ const FreelancerDashboard = () => {
   const { user, token } = useAuth();
   const [selectedProject, setSelectedProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+
+  const freelancerId = user?._id || user?.id;
 
   // Fetch freelancer's projects
   const { data: projectsData, isLoading: projectsLoading } = useQuery({
-    queryKey: ['freelancer-projects', user?._id],
+    queryKey: ['freelancer-projects', freelancerId],
     queryFn: async () => {
-      const freelancerId = user?._id || user?.id;
       if (!freelancerId) throw new Error('No freelancer ID available');
-
       const response = await fetch(`${API_URL}/${freelancerId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -522,18 +521,7 @@ const FreelancerDashboard = () => {
 
   const projects = projectsData?.data?.projects || [];
   const userDetails = userData?.data?.document || userData?.data || userData || user;
-
-  // Filter projects
-  const filteredProjects = projects.filter(project => {
-    const matchesSearch = project.projectName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.technology?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = filterStatus === 'all' ||
-                         (project.status?.toLowerCase() || 'pending') === filterStatus.toLowerCase();
-    
-    return matchesSearch && matchesFilter;
-  });
+  const filteredProjects = projects;
 
   // Update project status (freelancer only)
   const queryClient = useQueryClient();
@@ -569,6 +557,7 @@ const FreelancerDashboard = () => {
     totalProjects: projects.length,
     completedProjects: projects.filter(p => p.status?.toLowerCase() === 'completed').length,
     pendingProjects: projects.filter(p => !p.status || p.status.toLowerCase() === 'pending').length,
+    inProgressProjects: projects.filter(p => p.status?.toLowerCase() === 'in_progress').length,
     cancelledProjects: projects.filter(p => p.status?.toLowerCase() === 'cancelled').length,
     uniqueClients: [...new Set(projects.map(p => p.client?._id))].length
   };
@@ -614,7 +603,7 @@ const FreelancerDashboard = () => {
 
         {/* Stats Overview */}
         {projects.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             <StatsCard
               icon={Briefcase}
               label="Total Projects"
@@ -631,6 +620,12 @@ const FreelancerDashboard = () => {
             <StatsCard
               icon={Clock}
               label="In Progress"
+              value={stats.inProgressProjects}
+              color="from-cyan-500 to-[#00ffff]"
+            />
+            <StatsCard
+              icon={AlertCircle}
+              label="Pending"
               value={stats.pendingProjects}
               color="from-yellow-500 to-orange-500"
             />
@@ -648,35 +643,7 @@ const FreelancerDashboard = () => {
         <div className="bg-[#121212] border border-[#2a2a2a] rounded-xl overflow-hidden">
           {/* Projects Header */}
           <div className="p-6 border-b border-[#2a2a2a]">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <h2 className="text-xl font-semibold text-white">Your Projects</h2>
-              
-              <div className="flex items-center gap-3">
-                {/* Search */}
-                <div className="relative">
-                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#808080]" />
-                  <input
-                    type="text"
-                    placeholder="Search projects..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 pr-4 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-white text-sm placeholder-[#808080] focus:outline-none focus:border-[#00ffff] w-full md:w-64"
-                  />
-                </div>
-
-                {/* Filter */}
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-white text-sm focus:outline-none focus:border-[#00ffff]"
-                >
-                  <option value="all">All Projects</option>
-                  <option value="pending">Pending</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-            </div>
+            <h2 className="text-xl font-semibold text-white">Your Projects</h2>
           </div>
 
           {/* Projects Grid */}
@@ -699,9 +666,7 @@ const FreelancerDashboard = () => {
               </div>
               <h3 className="text-lg font-medium text-white mb-2">No projects found</h3>
               <p className="text-[#b0b0b0] text-sm">
-                {searchTerm || filterStatus !== 'all' 
-                  ? 'Try adjusting your search or filter'
-                  : 'You haven\'t received any projects yet'}
+                You haven&apos;t received any projects yet
               </p>
             </div>
           )}

@@ -8,7 +8,7 @@ const featureData = [
     title: 'Projects',
     description:
       'Create projects, set scope and tech stack, and connect with the right freelancer. Manage everything in one place from brief to delivery.',
-    image: 'images/data-nexus.jpg',
+    image: '/images/data-nexus.jpg',
     tech: ['Scope', 'Milestones', 'Delivery'],
   },
   {
@@ -16,7 +16,7 @@ const featureData = [
     title: 'Real-time Chat',
     description:
       'Message freelancers and clients instantly. Built-in conversations keep all project communication in one thread—no more scattered emails.',
-    image: 'images/neural-network.jpg',
+    image: '/images/neural-network.jpg',
     tech: ['Instant', 'Threaded', 'Secure'],
   },
   {
@@ -24,7 +24,7 @@ const featureData = [
     title: 'AI-Powered Tools',
     description:
       'Generate dashboard mockups and UI ideas from a short description. Use AI to speed up scoping and visualization before development.',
-    image: 'images/quantum-cloud.jpg',
+    image: '/images/quantum-cloud.jpg',
     tech: ['Groq AI', 'Mockups', 'Fast'],
   },
   {
@@ -32,7 +32,7 @@ const featureData = [
     title: 'Role-based Dashboards',
     description:
       'Clients see their projects and messages. Freelancers see assigned work and chats. Admins manage users and platform activity.',
-    image: 'images/cyber-defense.jpg',
+    image: '/images/cyber-defense.jpg',
     tech: ['Client', 'Freelancer', 'Admin'],
   },
   {
@@ -40,7 +40,7 @@ const featureData = [
     title: 'Profiles & Skills',
     description:
       'Freelancers showcase skills, bio, and experience. Clients find the right match. Everyone stays in sync with clear roles and expectations.',
-    image: 'images/blockchain-vault.jpg',
+    image: '/images/blockchain-vault.jpg',
     tech: ['Profile', 'Skills', 'Match'],
   },
   {
@@ -48,7 +48,7 @@ const featureData = [
     title: 'Secure & Simple',
     description:
       'JWT authentication, role-based access, and a clean API. Build and scale your workflow without worrying about auth or permissions.',
-    image: 'images/ar-interface.jpg',
+    image: '/images/ar-interface.jpg',
     tech: ['JWT', 'Roles', 'API'],
   },
 ];
@@ -89,6 +89,7 @@ const Landing = () => {
   const [statsAnimated, setStatsAnimated] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [failedImages, setFailedImages] = useState(new Set());
 
   // Check if this is the initial page load (not navigation)
   useEffect(() => {
@@ -126,6 +127,10 @@ const Landing = () => {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  const handleImageError = (id) => {
+    setFailedImages((prev) => new Set(prev).add(id));
+  };
+
   const scrollToSection = (id) => {
     const section = document.getElementById(id);
     const header = document.getElementById('header');
@@ -152,9 +157,14 @@ const Landing = () => {
         else header.classList.remove('scrolled');
       }
 
-      // Parallax
+      // Subtle parallax only when hero is in view, so it doesn’t overlap About
       if (hero) {
-        hero.style.transform = `translateY(${y * 0.5}px)`;
+        const heroHeight = hero.offsetHeight;
+        if (y < heroHeight * 0.8) {
+          hero.style.transform = `translateY(${y * 0.15}px)`;
+        } else {
+          hero.style.transform = `translateY(${heroHeight * 0.8 * 0.15}px)`;
+        }
       }
 
       // Active section
@@ -364,7 +374,7 @@ const Landing = () => {
             </span>
           </button>
 
-          <ul className={`nav-menu${isNavOpen ? ' active' : ''} `} id="navMenu">
+          <ul className={`nav-menu${isNavOpen ? ' active' : ''}`} id="navMenu" role="navigation" aria-label="Main">
             {sections.map((section) => (
               <li key={section.id}>
                 <button
@@ -392,6 +402,9 @@ const Landing = () => {
             type="button"
             className={`menu-toggle${isNavOpen ? ' active' : ''}`}
             id="menuToggle"
+            aria-expanded={isNavOpen}
+            aria-label={isNavOpen ? 'Close menu' : 'Open menu'}
+            aria-controls="navMenu"
             onClick={() => setIsNavOpen((prev) => !prev)}
           >
             <span />
@@ -420,7 +433,17 @@ const Landing = () => {
                 <div className="card">
                   <div className="card-number">{`0${item.id}`}</div>
                   <div className="card-image">
-                    <img src={item.image} alt={item.title} />
+                    {failedImages.has(item.id) ? (
+                      <div className="card-image-placeholder" aria-hidden="true">
+                        {item.title.charAt(0)}
+                      </div>
+                    ) : (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        onError={() => handleImageError(item.id)}
+                      />
+                    )}
                   </div>
                   <h3 className="card-title">{item.title}</h3>
                   <p className="card-description">{item.description}</p>
@@ -443,10 +466,11 @@ const Landing = () => {
             ))}
           </div>
 
-          <div className="carousel-controls">
+          <div className="carousel-controls" role="group" aria-label="Carousel navigation">
             <button
               type="button"
               className="carousel-btn"
+              aria-label="Previous feature"
               onClick={() =>
                 setCurrentIndex(
                   (prev) => (prev - 1 + featureData.length) % featureData.length,
@@ -458,6 +482,7 @@ const Landing = () => {
             <button
               type="button"
               className="carousel-btn"
+              aria-label="Next feature"
               onClick={() =>
                 setCurrentIndex((prev) => (prev + 1) % featureData.length)
               }
@@ -466,11 +491,14 @@ const Landing = () => {
             </button>
           </div>
 
-          <div className="carousel-indicators" id="indicators">
+          <div className="carousel-indicators" id="indicators" role="tablist" aria-label="Feature slides">
             {featureData.map((item, index) => (
               <button
                 key={item.id}
                 type="button"
+                role="tab"
+                aria-selected={index === currentIndex}
+                aria-label={`Go to ${item.title}`}
                 className={`indicator${index === currentIndex ? ' active' : ''}`}
                 onClick={() => setCurrentIndex(index)}
               />
@@ -579,7 +607,7 @@ const Landing = () => {
           <div className="skill-categories">
             <button
               type="button"
-              className="category-tab active"
+              className={`category-tab${activeCategory === 'all' ? ' active' : ''}`}
               onClick={() => setActiveCategory('all')}
             >
               Platform features
@@ -696,6 +724,7 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="footer">
+        <div className="footer-inner">
         <div className="footer-content">
           <div className="footer-brand">
             <div className="footer-logo">
@@ -710,58 +739,54 @@ const Landing = () => {
               </span>
             </div>
             <p className="footer-description">
-              Connect with freelancers, manage projects, and ship with AI-powered tools. Nexmind
-              turns ideas into delivered work.
+              Nexmind connects clients with skilled freelancers. Create projects, chat in real time,
+              and use AI-powered tools to go from brief to delivered product—faster.
             </p>
-            <div className="footer-social">
-              <a href="https://www.facebook.com" target="_blank" rel="noreferrer" className="social-icon">
-                f
-              </a>
-              <a href="https://www.x.com" target="_blank" rel="noreferrer" className="social-icon">
-                t
-              </a>
-              <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" className="social-icon">
-                in
-              </a>
-              <a href="https://www.instagram.com" target="_blank" rel="noreferrer" className="social-icon">
-                ig
-              </a>
+            <div className="footer-contact-line">
+              <a href="mailto:hello@nexmind.io" className="footer-email">hello@nexmind.io</a>
+            </div>
+            <div className="footer-social" aria-label="Social links">
+              <a href="https://www.facebook.com" target="_blank" rel="noreferrer" className="social-icon" aria-label="Facebook">Facebook</a>
+              <a href="https://www.x.com" target="_blank" rel="noreferrer" className="social-icon" aria-label="X (Twitter)">X</a>
+              <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" className="social-icon" aria-label="LinkedIn">LinkedIn</a>
+              <a href="https://www.instagram.com" target="_blank" rel="noreferrer" className="social-icon" aria-label="Instagram">Instagram</a>
             </div>
           </div>
 
           <div className="footer-section">
-            <h4>Services</h4>
+            <h4>Platform</h4>
             <div className="footer-links">
-              <Link to="/info/web-development">Web Development</Link>
-              <Link to="/info/app-development">App Development</Link>
-              <Link to="/info/cloud-solutions">Cloud Solutions</Link>
-              <Link to="/info/ai-integration">AI Integration</Link>
+              <button type="button" className="footer-link-btn" onClick={() => scrollToSection('home')}>Home</button>
+              <button type="button" className="footer-link-btn" onClick={() => scrollToSection('about')}>About</button>
+              <button type="button" className="footer-link-btn" onClick={() => scrollToSection('skills')}>Features</button>
+              <button type="button" className="footer-link-btn" onClick={() => scrollToSection('stats')}>Metrics</button>
+              <button type="button" className="footer-link-btn" onClick={() => scrollToSection('contact')}>Contact</button>
             </div>
           </div>
 
           <div className="footer-section">
-            <h4>Company</h4>
+            <h4>Account</h4>
             <div className="footer-links">
-              <Link to="/info/about-us">About Us</Link>
-              <Link to="/info/our-team">Our Team</Link>
-              <Link to="/info/careers">Careers</Link>
-              <Link to="/info/press-kit">Press Kit</Link>
+              <Link to="/signup" className="footer-link">Sign up</Link>
+              <Link to="/login" className="footer-link">Login</Link>
+              <Link to="/forgot-password" className="footer-link">Forgot password</Link>
             </div>
           </div>
 
           <div className="footer-section">
             <h4>Resources</h4>
             <div className="footer-links">
-              <Link to="/info/documentation">Documentation</Link>
-              <Link to="/info/api-reference">API Reference</Link>
-              <Link to="/info/blog">Blog</Link>
-              <Link to="/info/support">Support</Link>
+              <button type="button" className="footer-link-btn" onClick={() => scrollToSection('contact')}>Get in touch</button>
+              <button type="button" className="footer-link-btn" onClick={() => scrollToSection('about')}>How it works</button>
+              <a href="mailto:support@nexmind.io" className="footer-link">Support</a>
             </div>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <div className="copyright">© 2026 Nexmind. All rights reserved.</div>
+          <div className="copyright">© {new Date().getFullYear()} Nexmind. All rights reserved.</div>
+          <p className="footer-tagline">Connect. Build. Ship.</p>
+        </div>
         </div>
       </footer>
     </div>

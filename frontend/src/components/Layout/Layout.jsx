@@ -58,7 +58,6 @@ const Layout = ({ children }) => {
           toggleSidebar={toggleSidebar}
           sidebarOpen={sidebarOpen}
           userData={userData}
-          notifications={3}
         />
 
         {/* Page Content */}

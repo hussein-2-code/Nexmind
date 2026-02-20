@@ -33,8 +33,8 @@ const projectSchema = new mongoose.Schema(
         status: {
             type: String,
             enum: {
-                values: ['pending', 'completed', 'cancelled'],
-                message: 'Status must be pending, completed, or cancelled',
+                values: ['pending', 'in_progress', 'completed', 'cancelled'],
+                message: 'Status must be pending, in_progress, completed, or cancelled',
             },
             default: 'pending',
         },

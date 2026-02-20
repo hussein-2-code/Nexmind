@@ -643,7 +643,7 @@ const UserManagement = () => {
 
         {/* Users Table */}
         <div className="bg-[#121212] border border-[#2a2a2a] rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto scrollbar-modern">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#2a2a2a] bg-[#1a1a1a]">

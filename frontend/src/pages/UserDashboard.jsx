@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   PlusCircle, 
@@ -35,6 +35,15 @@ const getFilterFromLanguageInput = (input) => {
   return first || trimmed;
 };
 
+// Extract freelancers array from API response (handles different response shapes).
+const extractFreelancers = (data) => {
+  if (!data) return [];
+  if (data?.data?.freelancers && Array.isArray(data.data.freelancers)) return data.data.freelancers;
+  if (data?.data && Array.isArray(data.data)) return data.data;
+  if (Array.isArray(data)) return data;
+  return [];
+};
+
 // ------------------ SELECT FREELANCER MODAL ------------------
 const SelectFreelancerModal = ({ isOpen, onClose, token, currentUser, aiResponse, projectDetails, darkMode }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,9 +56,9 @@ const SelectFreelancerModal = ({ isOpen, onClose, token, currentUser, aiResponse
     ? `${FREELANCERS_URL}?language=${encodeURIComponent(filterLanguage)}`
     : FREELANCERS_URL;
 
-  // Fetch freelancers (auto-filtered by project language)
+  // Fetch freelancers (filtered by project language when set)
   const { data: freelancersData, isLoading: freelancersLoading } = useQuery({
-    queryKey: ['freelancers', filterLanguage],
+    queryKey: ['freelancers', filterLanguage || 'all'],
     queryFn: async () => {
       const response = await fetch(freelancersQueryUrl, {
         headers: {
@@ -66,6 +75,33 @@ const SelectFreelancerModal = ({ isOpen, onClose, token, currentUser, aiResponse
     },
     enabled: isOpen && !!token,
   });
+
+  const freelancersFromFilter = extractFreelancers(freelancersData);
+  const filteredResultEmpty = !freelancersLoading && !!filterLanguage && freelancersFromFilter.length === 0;
+
+  // When language filter returns no one, fetch all freelancers so the client can still choose
+  const { data: allFreelancersData, isLoading: allFreelancersLoading } = useQuery({
+    queryKey: ['freelancers', 'all'],
+    queryFn: async () => {
+      const response = await fetch(FREELANCERS_URL, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch freelancers');
+      return response.json();
+    },
+    enabled: isOpen && !!token && filteredResultEmpty,
+  });
+
+  const allFreelancers = extractFreelancers(allFreelancersData);
+  const showingAllAsFallback = filteredResultEmpty && allFreelancers.length > 0;
+  const freelancers = showingAllAsFallback ? allFreelancers : freelancersFromFilter;
+  const isLoading = freelancersLoading || (filteredResultEmpty && allFreelancersLoading);
+
+  const queryClient = useQueryClient();
+  const clientId = currentUser?._id || currentUser?.id;
 
   // Create project mutation
   const createProjectMutation = useMutation({
@@ -88,22 +124,15 @@ const SelectFreelancerModal = ({ isOpen, onClose, token, currentUser, aiResponse
     },
     onSuccess: () => {
       setSelectedFreelancer(null);
+      if (clientId) {
+        queryClient.invalidateQueries({ queryKey: ['client-projects', clientId] });
+      }
       onClose(true);
       toast.success('Project created successfully');
     },
   });
 
-  // Extract freelancers from response
-  let freelancers = [];
-  if (freelancersData?.data?.freelancers && Array.isArray(freelancersData.data.freelancers)) {
-    freelancers = freelancersData.data.freelancers;
-  } else if (freelancersData?.data && Array.isArray(freelancersData.data)) {
-    freelancers = freelancersData.data;
-  } else if (Array.isArray(freelancersData)) {
-    freelancers = freelancersData;
-  }
-
-  // Filter freelancers
+  // Filter freelancers (by search term)
   const filteredFreelancers = freelancers.filter((freelancer) =>
     freelancer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     freelancer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -161,7 +190,7 @@ const SelectFreelancerModal = ({ isOpen, onClose, token, currentUser, aiResponse
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
           transition={{ type: "spring", duration: 0.5 }}
           onClick={(e) => e.stopPropagation()}
-          className={`relative rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl ${darkMode ? 'bg-[#121212] border border-[#2a2a2a]' : 'bg-white border border-slate-200'}`}
+          className={`relative rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-modern shadow-2xl ${darkMode ? 'bg-[#121212] border border-[#2a2a2a]' : 'bg-white border border-slate-200'}`}
         >
           {darkMode && (
             <div className="absolute inset-0">
@@ -198,9 +227,14 @@ const SelectFreelancerModal = ({ isOpen, onClose, token, currentUser, aiResponse
 
           {/* Content */}
           <div className="relative p-6">
-            {filterLanguage && (
+            {filterLanguage && !showingAllAsFallback && (
               <p className={`text-sm mb-4 ${darkMode ? 'text-[#b0b0b0]' : 'text-slate-600'}`}>
                 Showing freelancers with <span className="text-cyan-600 dark:text-[#00ffff] font-medium">{filterLanguage}</span> (from your Programming language / stack)
+              </p>
+            )}
+            {showingAllAsFallback && (
+              <p className={`text-sm mb-4 px-4 py-2 rounded-lg border ${darkMode ? 'bg-amber-500/10 border-amber-500/30 text-amber-200' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+                No freelancers matched &quot;{filterLanguage}&quot;. Showing <strong>all freelancers</strong> so you can still choose one.
               </p>
             )}
 
@@ -255,7 +289,7 @@ const SelectFreelancerModal = ({ isOpen, onClose, token, currentUser, aiResponse
             )}
 
             {/* Freelancers grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto p-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto scrollbar-modern p-1">
               {freelancersLoading ? (
                 <div className="col-span-2 text-center py-8">
                   <Loader size={30} className="text-cyan-600 dark:text-[#00ffff] animate-spin mx-auto mb-3" />

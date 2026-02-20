@@ -171,7 +171,7 @@ const Messages = () => {
               </div>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-modern">
               {loading && !conversations.length ? (
                 <div className="flex flex-col items-center justify-center py-16 px-4">
                   <div className={`w-10 h-10 border-2 rounded-full animate-spin mb-4 ${darkMode ? 'border-[#2a2a2a] border-t-[#00ffff]' : 'border-slate-200 border-t-cyan-500'}`} />
@@ -201,8 +201,10 @@ const Messages = () => {
                         }}
                         className={`w-full text-left px-3 sm:px-4 py-3.5 mx-1 rounded-xl transition-all duration-200 border ${
                           isActive
-                            ? 'bg-cyan-50 dark:bg-gradient-to-r dark:from-[#00ffff]/15 dark:to-[#9945ff]/15 border-cyan-200 dark:border-[#00ffff]/20'
-                            : `${hoverBgCard} border-transparent`
+                            ? darkMode
+                              ? 'bg-[#1a1a1a] border-[#333] shadow-sm'
+                              : 'bg-slate-100 border-slate-200 shadow-sm'
+                            : `${hoverBgCard} border-transparent hover:border-slate-200 dark:hover:border-[#2a2a2a]`
                         }`}
                       >
                         <div className="flex gap-3 min-w-0">
@@ -211,7 +213,7 @@ const Messages = () => {
                               src={getAvatarUrl(other, 48)}
                               alt={other?.name || 'User'}
                               className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-cover ${
-                                isActive ? 'ring-2 ring-cyan-500 dark:ring-[#00ffff] shadow-lg' : ''
+                                isActive ? 'ring-2 ring-violet-500/80 dark:ring-violet-400/80 shadow-md' : ''
                               }`}
                               onError={(e) => { e.target.src = getAvatarUrl({ name: other?.name }, 48); }}
                             />
@@ -230,7 +232,7 @@ const Messages = () => {
                                 {formatTime(conv.lastMessageTime)}
                               </span>
                             </div>
-                            <p className="text-xs text-cyan-600 dark:text-[#00ffff]/90 truncate mt-0.5">
+                            <p className={`text-xs truncate mt-0.5 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-slate-500 dark:text-[#808080]'}`}>
                               {conv.projectId?.projectName || 'Project'}
                             </p>
                             <p className={`text-xs truncate mt-0.5 ${textDim}`}>
@@ -288,7 +290,7 @@ const Messages = () => {
                 </header>
 
                 {/* Messages - scrollable */}
-                <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+                <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-modern">
                   <div className="p-4 sm:p-5 pb-2 space-y-3 min-h-full flex flex-col">
                     {messages.length === 0 ? (
                       <div className="flex-1 flex items-center justify-center py-16">

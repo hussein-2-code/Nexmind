@@ -17,6 +17,7 @@ import FreelancerDashboard from './pages/FreelancerDashboard';
 import Landing from './pages/Landing';
 import ClientProjects from './pages/ClientProjects';
 import Messages from './pages/Messages';
+import Notifications from './pages/Notifications';
 import InfoPage from './pages/InfoPage';
 import { Toaster } from 'react-hot-toast';
 
@@ -152,6 +153,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Messages />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <Notifications />
           </ProtectedRoute>
         }
       />

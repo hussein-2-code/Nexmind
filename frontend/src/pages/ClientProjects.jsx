@@ -142,7 +142,7 @@ const ProjectPreviewModal = ({ isOpen, onClose, project }) => {
           </div>
 
           {/* Live Preview - Full Screen Design */}
-          <div className="relative bg-white w-full h-[calc(95vh-120px)] overflow-auto">
+          <div className="relative bg-white w-full h-[calc(95vh-120px)] overflow-auto scrollbar-modern">
             <iframe
               title="Project Design Preview"
               className="w-full h-full border-0"
@@ -227,9 +227,10 @@ const ProjectCard = ({ project, onClick }) => {
             <span className={`text-xs px-2 py-1 rounded-full border font-medium ${
               project.status.toLowerCase() === 'completed' ? 'bg-[#00ff88]/20 text-[#00ff88] border-[#00ff88]/30' :
               project.status.toLowerCase() === 'cancelled' ? 'bg-[#ff3333]/20 text-[#ff3333] border-[#ff3333]/30' :
+              project.status.toLowerCase() === 'in_progress' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' :
               'bg-yellow-500/20 text-yellow-500 border-yellow-500/30'
             }`}>
-              {(project.status.charAt(0).toUpperCase() + project.status.slice(1))}
+              {project.status.toLowerCase() === 'in_progress' ? 'In progress' : (project.status.charAt(0).toUpperCase() + project.status.slice(1))}
             </span>
           )}
         </div>
@@ -304,12 +305,12 @@ const ClientProjects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['client-projects', user?._id],
-    queryFn: async () => {
-      const clientId = user?._id || user?.id;
-      if (!clientId) throw new Error('No client ID available');
+  const clientId = user?._id || user?.id;
 
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['client-projects', clientId],
+    queryFn: async () => {
+      if (!clientId) throw new Error('No client ID available');
       const response = await fetch(`${API_URL}/${clientId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,

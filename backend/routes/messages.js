@@ -3,6 +3,7 @@ const router = express.Router();
 const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
 const authController = require('../controllers/authController');
+const notificationController = require('../controllers/notificationController');
 
 router.use(authController.protect);
 
@@ -109,6 +110,17 @@ router.post('/', async (req, res) => {
             'senderId',
             'name email photo'
         );
+
+        const senderName = populatedMessage.senderId?.name || 'Someone';
+        const contentPreview = content.trim().length > 60 ? content.trim().substring(0, 60) + '…' : content.trim();
+        await notificationController.createNotification(receiverId, {
+            type: 'message',
+            title: 'New message',
+            message: `${senderName}: ${contentPreview}`,
+            link: `/messages/${conversationId}`,
+            relatedId: conversationId,
+            relatedModel: 'Conversation',
+        });
 
         res.status(201).json({
             status: 'success',

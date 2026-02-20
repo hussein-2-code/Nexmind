@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appErrors');
 const Project = require('../models/projectModel');
+const notificationController = require('./notificationController');
 // Create a new project
 exports.createProject = catchAsync(async (req, res, next) => {
     const { projectName, platform, technology, description, response, client, freeLancer } = req.body;
@@ -24,6 +25,15 @@ exports.createProject = catchAsync(async (req, res, next) => {
         freeLancer
     });
 
+    await notificationController.createNotification(freeLancer, {
+        type: 'project_assigned',
+        title: 'New project assigned',
+        message: projectName || 'A client assigned you a new project.',
+        link: '/freelancer',
+        relatedId: project._id,
+        relatedModel: 'Project',
+    });
+
     res.status(201).json({
         status: 'success',
         data: {
@@ -36,15 +46,15 @@ exports.createProject = catchAsync(async (req, res, next) => {
 exports.getFreelancerProjects = catchAsync(async (req, res, next) => {
     const freelancerId = req.params.freelancerId;
 
-    // Check if freelancer exists
     const freelancer = await User.findById(freelancerId);
     if (!freelancer) {
         return next(new AppError('Freelancer not found', 404));
     }
 
     const projects = await Project.find({ freeLancer: freelancerId })
-        .populate('client', 'name email') // Populate client details
-        .populate('freeLancer', 'name email'); // Populate freelancer details
+        .sort('-createdAt')
+        .populate('client', 'name email photo')
+        .populate('freeLancer', 'name email photo');
 
     res.status(200).json({
         status: 'success',
@@ -60,15 +70,15 @@ exports.getFreelancerProjects = catchAsync(async (req, res, next) => {
 exports.getClientProjects = catchAsync(async (req, res, next) => {
     const clientId = req.params.clientId;
 
-    // Check if client exists
     const client = await User.findById(clientId);
     if (!client) {
         return next(new AppError('Client not found', 404));
     }
 
     const projects = await Project.find({ client: clientId })
-        .populate('client', 'name email')
-        .populate('freeLancer', 'name email');
+        .sort('-createdAt')
+        .populate('client', 'name email photo')
+        .populate('freeLancer', 'name email photo');
 
     res.status(200).json({
         status: 'success',
@@ -82,8 +92,8 @@ exports.getClientProjects = catchAsync(async (req, res, next) => {
 // Get a single project by ID
 exports.getProject = catchAsync(async (req, res, next) => {
     const project = await Project.findById(req.params.id)
-        .populate('client', 'name email')
-        .populate('freeLancer', 'name email');
+        .populate('client', 'name email photo')
+        .populate('freeLancer', 'name email photo');
 
     if (!project) {
         return next(new AppError('No project found with that ID', 404));
@@ -106,8 +116,8 @@ exports.updateProject = catchAsync(async (req, res, next) => {
             new: true,
             runValidators: true
         }
-    ).populate('client', 'name email')
-     .populate('freeLancer', 'name email');
+    ).populate('client', 'name email photo')
+     .populate('freeLancer', 'name email photo');
 
     if (!project) {
         return next(new AppError('No project found with that ID', 404));
@@ -121,8 +131,8 @@ exports.updateProject = catchAsync(async (req, res, next) => {
     });
 });
 
-// Update project status (freelancer only; allowed values: pending, completed, cancelled)
-const ALLOWED_STATUSES = ['pending', 'completed', 'cancelled'];
+// Update project status (freelancer only; allowed values: pending, in_progress, completed, cancelled)
+const ALLOWED_STATUSES = ['pending', 'in_progress', 'completed', 'cancelled'];
 
 exports.updateProjectStatus = catchAsync(async (req, res, next) => {
     const { status } = req.body;
@@ -130,7 +140,7 @@ exports.updateProjectStatus = catchAsync(async (req, res, next) => {
     const userId = req.user.id;
 
     if (!status || !ALLOWED_STATUSES.includes(status.toLowerCase())) {
-        return next(new AppError('Invalid status. Use: pending, completed, or cancelled', 400));
+        return next(new AppError('Invalid status. Use: pending, in_progress, completed, or cancelled', 400));
     }
 
     const project = await Project.findById(projectId);
@@ -147,8 +157,20 @@ exports.updateProjectStatus = catchAsync(async (req, res, next) => {
     await project.save({ validateBeforeSave: true });
 
     const updated = await Project.findById(projectId)
-        .populate('client', 'name email')
-        .populate('freeLancer', 'name email');
+        .populate('client', 'name email photo')
+        .populate('freeLancer', 'name email photo');
+
+    const clientId = (updated.client && (updated.client._id || updated.client)).toString();
+    if (clientId) {
+        await notificationController.createNotification(clientId, {
+            type: 'project_status',
+            title: 'Project status updated',
+            message: `"${updated.projectName}" is now ${status.toLowerCase()}.`,
+            link: '/projects',
+            relatedId: updated._id,
+            relatedModel: 'Project',
+        });
+    }
 
     res.status(200).json({
         status: 'success',
@@ -180,8 +202,8 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
     excludedFields.forEach(el => delete queryObj[el]);
 
     let query = Project.find(queryObj)
-        .populate('client', 'name email')
-        .populate('freeLancer', 'name email');
+        .populate('client', 'name email photo')
+        .populate('freeLancer', 'name email photo');
 
     // Sorting
     if (req.query.sort) {
